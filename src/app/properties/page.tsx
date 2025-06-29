@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -284,7 +284,7 @@ const locations = [
   { id: "ashanti", name: "Ashanti Region" },
 ];
 
-export default function PropertiesPage() {
+function PropertiesContent() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
@@ -846,5 +846,13 @@ export default function PropertiesPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PropertiesContent />
+    </Suspense>
   );
 }
