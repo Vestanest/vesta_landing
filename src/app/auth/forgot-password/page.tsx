@@ -9,22 +9,18 @@ import { useAuth } from "../../../contexts/AuthContext";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState("");
   const { forgotPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     try {
       const success = await forgotPassword(email);
       if (success) {
         setIsSubmitted(true);
-      } else {
-        setError("Failed to send reset email. Please try again.");
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch {
+      // Handle error
     }
   };
 
@@ -170,18 +166,6 @@ export default function ForgotPasswordPage() {
             className="mt-8 space-y-6"
             onSubmit={handleSubmit}
           >
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
-              >
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </p>
-              </motion.div>
-            )}
-
             <div>
               <label
                 htmlFor="email"

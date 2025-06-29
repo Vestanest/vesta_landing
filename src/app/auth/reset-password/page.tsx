@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   EyeIcon,
   EyeSlashIcon,
@@ -20,16 +19,12 @@ export default function ResetPasswordPage() {
     confirmPassword: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState("");
   const { resetPassword } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
       return;
     }
 
@@ -40,11 +35,9 @@ export default function ResetPasswordPage() {
       );
       if (success) {
         setIsSubmitted(true);
-      } else {
-        setError("Failed to reset password. Please try again.");
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch {
+      // Handle error
     }
   };
 
@@ -171,18 +164,6 @@ export default function ResetPasswordPage() {
             className="mt-8 space-y-6"
             onSubmit={handleSubmit}
           >
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
-              >
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </p>
-              </motion.div>
-            )}
-
             <div className="space-y-4">
               {/* Password Field */}
               <div>

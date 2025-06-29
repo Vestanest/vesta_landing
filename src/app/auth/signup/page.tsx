@@ -19,16 +19,13 @@ export default function SignupPage() {
     phone: "",
     agreeToTerms: false,
   });
-  const [error, setError] = useState("");
   const { signup } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
       return;
     }
 
@@ -43,11 +40,9 @@ export default function SignupPage() {
 
       if (success) {
         router.push("/");
-      } else {
-        setError("Failed to create account. Please try again.");
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch {
+      // Handle error
     }
   };
 
@@ -120,18 +115,6 @@ export default function SignupPage() {
             className="mt-8 space-y-6"
             onSubmit={handleSubmit}
           >
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
-              >
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </p>
-              </motion.div>
-            )}
-
             <div className="space-y-4">
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">

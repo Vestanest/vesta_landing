@@ -13,23 +13,21 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     try {
       const success = await login(formData.email, formData.password);
       if (success) {
         router.push("/");
       } else {
-        setError("Invalid email or password. Please try again.");
+        // Handle error
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch {
+      // Handle error
     }
   };
 
@@ -89,72 +87,58 @@ export default function LoginPage() {
             className="mt-8 space-y-6"
             onSubmit={handleSubmit}
           >
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+            {/* Email Field */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </p>
-              </motion.div>
-            )}
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                placeholder="Enter your email"
+              />
+            </div>
 
-            <div className="space-y-4">
-              {/* Email Field */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Email address
-                </label>
+            {/* Password Field */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Password
+              </label>
+              <div className="relative">
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   required
-                  value={formData.email}
+                  value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                  placeholder="Enter your email"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                  placeholder="Enter your password"
                 />
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  >
-                    {showPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 
