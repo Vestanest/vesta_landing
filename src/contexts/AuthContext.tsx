@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   createContext,
@@ -60,8 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const login = async (email: string, _password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
 
@@ -130,8 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("vesta-user");
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const forgotPassword = async (_email: string): Promise<boolean> => {
+  const forgotPassword = async (email: string): Promise<boolean> => {
     try {
       setIsLoading(true);
 
@@ -148,10 +147,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const resetPassword = async (
-    _password: string,
-    _confirmPassword: string
+    password: string,
+    confirmPassword: string
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
