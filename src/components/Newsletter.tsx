@@ -1,4 +1,6 @@
+"use client";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import {
   EnvelopeIcon,
   ArrowRightIcon,
@@ -6,6 +8,30 @@ import {
 } from "@heroicons/react/24/solid";
 
 export default function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !email.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubscribed(true);
+      setIsLoading(false);
+      setEmail("");
+      // Reset after 3 seconds
+      setTimeout(() => setIsSubscribed(false), 3000);
+    }, 1000);
+  };
+
   return (
     <section className="relative py-20 px-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
       {/* Creative Background Elements */}
@@ -94,27 +120,68 @@ export default function Newsletter() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="max-w-md mx-auto"
         >
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 dark:text-orange-300" />
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                className="w-full pl-12 pr-4 py-4 bg-white/90 dark:bg-gray-800/90 border border-orange-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-none"
-              />
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 dark:from-orange-500 dark:to-amber-500 text-white font-semibold rounded-xl hover:bg-orange-700 dark:hover:bg-orange-600 transition-all duration-300 group overflow-hidden"
+          {isSubscribed ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-4 rounded-xl border border-green-200 dark:border-green-700"
             >
-              <motion.div className="absolute inset-0 bg-gradient-to-r from-orange-700 to-amber-700 dark:from-orange-600 dark:to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <motion.div className="relative flex items-center gap-2">
-                Subscribe
-                <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.div>
-            </motion.button>
-          </div>
+              <p className="font-semibold">Thank you for subscribing!</p>
+              <p className="text-sm">You&apos;ll receive our updates soon.</p>
+            </motion.div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <div className="relative flex-1">
+                <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400 dark:text-orange-300" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  className="w-full pl-12 pr-4 py-4 bg-white/90 dark:bg-gray-800/90 border border-orange-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-none"
+                  required
+                />
+              </div>
+              <motion.button
+                type="submit"
+                disabled={isLoading}
+                whileHover={{
+                  scale: isLoading ? 1 : 1.05,
+                  y: isLoading ? 0 : -2,
+                }}
+                whileTap={{ scale: isLoading ? 1 : 0.95 }}
+                className={`relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 dark:from-orange-500 dark:to-amber-500 text-white font-semibold rounded-xl hover:bg-orange-700 dark:hover:bg-orange-600 transition-all duration-300 group overflow-hidden ${
+                  isLoading ? "opacity-75 cursor-not-allowed" : ""
+                }`}
+              >
+                <motion.div className="absolute inset-0 bg-gradient-to-r from-orange-700 to-amber-700 dark:from-orange-600 dark:to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <motion.div className="relative flex items-center gap-2">
+                  {isLoading ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      />
+                      Subscribing...
+                    </>
+                  ) : (
+                    <>
+                      Subscribe
+                      <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </motion.div>
+              </motion.button>
+            </form>
+          )}
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
             We respect your privacy. Unsubscribe at any time.
           </p>

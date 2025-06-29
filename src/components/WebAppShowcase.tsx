@@ -335,11 +335,6 @@ export default function WebAppShowcase() {
                 whileHover={{ y: -8, scale: 1.02 }}
                 className="group relative"
               >
-                {/* Card Background with Gradient Border */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-2xl blur-sm group-hover:blur-md transition-all duration-300 opacity-20 dark:opacity-30`}
-                ></div>
-
                 <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl p-6 border border-orange-100/50 dark:border-gray-700/50 text-center">
                   {/* Icon Container with Gradient Background */}
                   <motion.div

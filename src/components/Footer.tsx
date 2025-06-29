@@ -1,23 +1,24 @@
+"use client";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   MapPinIcon,
   PhoneIcon,
   EnvelopeIcon,
-  GlobeAltIcon,
 } from "@heroicons/react/24/outline";
 
 const footerLinks = {
   company: [
-    { name: "About Us", href: "#" },
-    { name: "Our Team", href: "#" },
-    { name: "Careers", href: "#" },
-    { name: "Press", href: "#" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Properties", href: "/properties" },
   ],
   services: [
-    { name: "Buy Property", href: "#" },
-    { name: "Sell Property", href: "#" },
-    { name: "Rent Property", href: "#" },
-    { name: "Property Management", href: "#" },
+    { name: "Buy Property", href: "/services/buy-property" },
+    { name: "Sell Property", href: "/services/sell-property" },
+    { name: "Rent Property", href: "/services/rent-property" },
+    { name: "Property Management", href: "/services/property-management" },
   ],
   information: [
     { name: "Property Guide", href: "#" },
@@ -28,10 +29,9 @@ const footerLinks = {
     { name: "Area Guides", href: "#" },
   ],
   support: [
-    { name: "Help Center", href: "#" },
-    { name: "Contact Us", href: "#" },
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
+    { name: "Help Center", href: "/support/help-center" },
+    { name: "Privacy Policy", href: "/support/privacy-policy" },
+    { name: "Terms of Service", href: "/support/terms-of-service" },
   ],
 };
 
@@ -75,6 +75,18 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    if (href === "#") {
+      return false;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 text-white overflow-hidden">
       {/* Creative Background Elements */}
@@ -139,12 +151,14 @@ export default function Footer() {
             className="lg:col-span-2"
           >
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">V</span>
-              </div>
-              <span className="text-2xl font-bold text-orange-400 dark:text-orange-300">
-                Vesta Nest
-              </span>
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">V</span>
+                </div>
+                <span className="text-2xl font-bold text-orange-400 dark:text-orange-300">
+                  Vesta Nest
+                </span>
+              </Link>
             </div>
             <p className="text-gray-300 dark:text-gray-400 mb-4">
               Your trusted partner in finding the perfect home across Ghana.
@@ -176,19 +190,40 @@ export default function Footer() {
               Company
             </h3>
             <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200 transition-colors duration-200"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+              {footerLinks.company.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <li key={link.name}>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </motion.div>
 
+          {/* Services */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -199,20 +234,40 @@ export default function Footer() {
               Services
             </h3>
             <ul className="space-y-2">
-              {footerLinks.services.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200 transition-colors duration-200"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+              {footerLinks.services.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <li key={link.name}>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </motion.div>
 
-          {/* Information Section */}
+          {/* Information */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -223,20 +278,40 @@ export default function Footer() {
               Information
             </h3>
             <ul className="space-y-2">
-              {footerLinks.information.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200 transition-colors duration-200"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+              {footerLinks.information.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <li key={link.name}>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </motion.div>
 
-          {/* Contact Info */}
+          {/* Support */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -244,43 +319,88 @@ export default function Footer() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <h3 className="text-lg font-semibold mb-4 text-orange-300 dark:text-orange-200">
-              Contact
+              Support
             </h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <MapPinIcon className="w-5 h-5 text-orange-400 dark:text-orange-300" />
-                <span className="text-gray-300 dark:text-gray-400">
-                  Accra, Ghana
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <PhoneIcon className="w-5 h-5 text-orange-400 dark:text-orange-300" />
-                <span className="text-gray-300 dark:text-gray-400">
-                  +233 20 123 4567
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <EnvelopeIcon className="w-5 h-5 text-orange-400 dark:text-orange-300" />
-                <span className="text-gray-300 dark:text-gray-400">
-                  info@vestanest.com
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <GlobeAltIcon className="w-5 h-5 text-orange-400 dark:text-orange-300" />
-                <span className="text-gray-300 dark:text-gray-400">
-                  www.vestanest.com
-                </span>
-              </div>
-            </div>
+            <ul className="space-y-2">
+              {footerLinks.support.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <li key={link.name}>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className={`transition-colors duration-200 ${
+                          active
+                            ? "text-orange-300 dark:text-orange-200 font-medium"
+                            : "text-gray-300 dark:text-gray-400 hover:text-orange-300 dark:hover:text-orange-200"
+                        }`}
+                      >
+                        {link.name}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </motion.div>
         </div>
+
+        {/* Contact Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-12 pt-8 border-t border-gray-700 dark:border-gray-600"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                <MapPinIcon className="h-5 w-5 text-orange-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Address</p>
+                <p className="text-white">Accra, Ghana</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                <PhoneIcon className="h-5 w-5 text-orange-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Phone</p>
+                <p className="text-white">+233 20 123 4567</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                <EnvelopeIcon className="h-5 w-5 text-orange-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Email</p>
+                <p className="text-white">info@vestanest.com</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* App Store Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-12 pt-8 border-t border-gray-700 dark:border-gray-800"
         >
           <div className="text-center mb-6">
@@ -353,7 +473,7 @@ export default function Footer() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
           className="border-t border-gray-700 dark:border-gray-800 mt-8 pt-8 text-center"
         >
           <p className="text-gray-400 dark:text-gray-500">

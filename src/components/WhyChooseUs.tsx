@@ -7,6 +7,7 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const reasons = [
   {
@@ -183,11 +184,6 @@ export default function WhyChooseUs() {
               whileHover={{ y: -10, scale: 1.02 }}
               className="group relative"
             >
-              {/* Card Background with Gradient Border */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${reason.gradient} rounded-2xl blur-sm group-hover:blur-md transition-all duration-300 opacity-20 dark:opacity-30`}
-              ></div>
-
               <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 border border-orange-100/50 dark:border-gray-700/50 flex flex-col items-center text-center">
                 {/* Enhanced Icon Container with Gradient Background */}
                 <motion.div
@@ -264,33 +260,35 @@ export default function WhyChooseUs() {
               transition={{ duration: 0.8, delay: 0.9 }}
               className="mt-8"
             >
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg group"
-              >
-                <PhoneIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Get Started Today
-                <motion.svg
-                  className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
+              <Link href="/contact">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg group"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </motion.svg>
-              </motion.button>
+                  <PhoneIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  Get Started Today
+                  <motion.svg
+                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </motion.svg>
+                </motion.button>
+              </Link>
             </motion.div>
           </div>
         </motion.div>

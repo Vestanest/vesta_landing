@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import "./globals.css";
 import ClientWrapper from "../components/ClientWrapper";
+import { AuthProvider } from "../contexts/AuthContext";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -22,8 +23,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={`${urbanist.variable} font-sans antialiased`}>
-        <ClientWrapper>{children}</ClientWrapper>
+        <AuthProvider>
+          <ClientWrapper>{children}</ClientWrapper>
+        </AuthProvider>
       </body>
     </html>
   );

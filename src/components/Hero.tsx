@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   HomeIcon,
   MapPinIcon,
@@ -233,48 +234,52 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 dark:from-orange-500 dark:to-amber-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg group overflow-hidden"
-              >
-                <motion.div className="absolute inset-0 bg-gradient-to-r from-orange-700 to-amber-700 dark:from-orange-600 dark:to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <motion.div className="relative flex items-center gap-3">
-                  <HomeIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                  Explore Properties
-                  <motion.svg
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
-                  </motion.svg>
-                </motion.div>
-              </motion.button>
+              <Link href="/properties">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 dark:from-orange-500 dark:to-amber-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg group overflow-hidden"
+                >
+                  <motion.div className="absolute inset-0 bg-gradient-to-r from-orange-700 to-amber-700 dark:from-orange-600 dark:to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <motion.div className="relative flex items-center gap-3">
+                    <HomeIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    Explore Properties
+                    <motion.svg
+                      className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
+                    </motion.svg>
+                  </motion.div>
+                </motion.button>
+              </Link>
 
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative inline-flex items-center gap-3 px-8 py-4 border-2 border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white dark:hover:text-white transition-all duration-300 text-lg group overflow-hidden"
-              >
-                <motion.div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <motion.div className="relative flex items-center gap-3">
-                  <MapPinIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                  View Locations
-                </motion.div>
-              </motion.button>
+              <Link href="/locations">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative inline-flex items-center gap-3 px-8 py-4 border-2 border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white dark:hover:text-white transition-all duration-300 text-lg group overflow-hidden"
+                >
+                  <motion.div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <motion.div className="relative flex items-center gap-3">
+                    <MapPinIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    View Locations
+                  </motion.div>
+                </motion.button>
+              </Link>
             </motion.div>
           </motion.div>
 
@@ -326,7 +331,7 @@ export default function Hero() {
                   whileHover={{ scale: 1.05 }}
                   className="absolute bottom-4 left-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg"
                 >
-                  $450,000
+                  GHC 450,000
                 </motion.div>
 
                 {/* Floating Sparkles Animation */}

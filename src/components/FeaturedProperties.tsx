@@ -1,47 +1,153 @@
 import {
-  MapPinIcon,
-  StarIcon,
   SparklesIcon,
   HomeIcon,
+  BuildingOffice2Icon,
+  SwatchIcon,
+  Square3Stack3DIcon,
+  TruckIcon,
+  WifiIcon,
+  ShieldCheckIcon,
+  FireIcon,
+  HeartIcon,
 } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
+import PropertyCard, { Property } from "./PropertyCard";
 
-const properties = [
+const properties: Property[] = [
   {
+    id: 1,
     title: "Modern Villa",
     description:
       "Spacious, sunlit, and located in a serene neighborhood with modern amenities.",
     location: "Accra, Ghana",
     rating: 4.8,
-    price: "$450,000",
+    price: "450,000",
     image:
       "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
     gradient: "from-orange-500 to-amber-500",
     delay: 0.1,
+    features: [
+      {
+        name: "Bedrooms",
+        value: "4",
+        icon: BuildingOffice2Icon,
+      },
+      {
+        name: "Bathrooms",
+        value: "3",
+        icon: SwatchIcon,
+      },
+      {
+        name: "Area",
+        value: "3,200 sq ft",
+        icon: Square3Stack3DIcon,
+      },
+      {
+        name: "Parking",
+        value: "3 cars",
+        icon: TruckIcon,
+      },
+      {
+        name: "Pool",
+        value: "Private",
+        icon: FireIcon,
+      },
+      {
+        name: "Garden",
+        value: "Large",
+        icon: HeartIcon,
+      },
+    ],
   },
   {
+    id: 2,
     title: "Urban Apartment",
     description:
       "Contemporary design with city views and modern amenities in the heart of the city.",
     location: "Kumasi, Ghana",
     rating: 4.7,
-    price: "$280,000",
+    price: "280,000",
     image:
       "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=600&q=80",
     gradient: "from-amber-500 to-yellow-500",
     delay: 0.2,
+    features: [
+      {
+        name: "Bedrooms",
+        value: "2",
+        icon: BuildingOffice2Icon,
+      },
+      {
+        name: "Bathrooms",
+        value: "2",
+        icon: SwatchIcon,
+      },
+      {
+        name: "Area",
+        value: "1,800 sq ft",
+        icon: Square3Stack3DIcon,
+      },
+      {
+        name: "Gym",
+        value: "Included",
+        icon: FireIcon,
+      },
+      {
+        name: "WiFi",
+        value: "High-speed",
+        icon: WifiIcon,
+      },
+      {
+        name: "Security",
+        value: "24/7",
+        icon: ShieldCheckIcon,
+      },
+    ],
   },
   {
+    id: 3,
     title: "Family Home",
     description:
       "Perfect for families, close to schools and parks with a beautiful garden.",
     location: "Takoradi, Ghana",
     rating: 4.9,
-    price: "$520,000",
+    price: "520,000",
     image:
       "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=600&q=80",
     gradient: "from-yellow-500 to-orange-500",
     delay: 0.3,
+    features: [
+      {
+        name: "Bedrooms",
+        value: "5",
+        icon: BuildingOffice2Icon,
+      },
+      {
+        name: "Bathrooms",
+        value: "4",
+        icon: SwatchIcon,
+      },
+      {
+        name: "Area",
+        value: "4,500 sq ft",
+        icon: Square3Stack3DIcon,
+      },
+      {
+        name: "Garden",
+        value: "Acres",
+        icon: HeartIcon,
+      },
+      {
+        name: "School",
+        value: "Nearby",
+        icon: ShieldCheckIcon,
+      },
+      {
+        name: "Parking",
+        value: "4 cars",
+        icon: TruckIcon,
+      },
+    ],
   },
 ];
 
@@ -173,112 +279,7 @@ export default function FeaturedProperties() {
         {/* Enhanced Properties Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {properties.map((property, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: property.delay }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              className="group relative"
-            >
-              {/* Card Background with Gradient Border */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${property.gradient} rounded-2xl blur-sm group-hover:blur-md transition-all duration-300 opacity-20 dark:opacity-30`}
-              ></div>
-
-              <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-orange-100/50 dark:border-gray-700/50 overflow-hidden">
-                {/* Enhanced Image Container */}
-                <div className="relative h-56 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 overflow-hidden group">
-                  <motion.img
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-
-                  {/* Enhanced Rating Badge */}
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="absolute top-4 right-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1 shadow-lg"
-                  >
-                    <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                    >
-                      <StarIcon className="w-4 h-4 text-yellow-400" />
-                    </motion.div>
-                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                      {property.rating}
-                    </span>
-                  </motion.div>
-
-                  {/* Enhanced Price Badge */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className={`absolute bottom-4 left-4 bg-gradient-to-r ${property.gradient} text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg`}
-                  >
-                    {property.price}
-                  </motion.div>
-
-                  {/* Floating Sparkles */}
-                  <motion.div
-                    animate={{
-                      opacity: [0, 1, 0],
-                      scale: [0.5, 1, 0.5],
-                      rotate: [0, 180, 360],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: i * 0.5,
-                    }}
-                    className="absolute top-1/4 left-1/4"
-                  >
-                    <SparklesIcon className="w-4 h-4 text-yellow-300" />
-                  </motion.div>
-                </div>
-
-                {/* Enhanced Content */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                      {property.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                      {property.description}
-                    </p>
-                    <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 mb-3">
-                      <MapPinIcon className="w-5 h-5" />
-                      <span className="font-medium">{property.location}</span>
-                    </div>
-                  </div>
-
-                  {/* Enhanced Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-full bg-gradient-to-r ${property.gradient} text-white font-semibold py-3 rounded-xl hover:shadow-lg transition-all duration-300 group/btn relative overflow-hidden`}
-                  >
-                    <motion.div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                    <span className="relative flex items-center justify-center gap-2">
-                      <HomeIcon className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-                      View Details
-                    </span>
-                  </motion.button>
-                </div>
-
-                {/* Decorative Elements */}
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <SparklesIcon className="w-5 h-5 text-orange-400" />
-                </div>
-              </div>
-            </motion.div>
+            <PropertyCard key={i} property={property} />
           ))}
         </div>
 

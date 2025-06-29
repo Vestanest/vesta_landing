@@ -213,11 +213,6 @@ export default function About() {
               whileHover={{ y: -12, scale: 1.03 }}
               className="group relative"
             >
-              {/* Enhanced Card Background with Gradient Border */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-2xl blur-sm group-hover:blur-md transition-all duration-300 opacity-20 dark:opacity-30`}
-              ></div>
-
               <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-8 border border-orange-100/50 dark:border-gray-700/50">
                 {/* Enhanced Icon Container with Gradient Background */}
                 <motion.div
