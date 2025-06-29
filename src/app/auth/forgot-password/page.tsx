@@ -20,7 +20,7 @@ export default function ForgotPasswordPage() {
         setIsSubmitted(true);
       }
     } catch {
-      // Handle error
+      // Handle error silently
     }
   };
 

@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
         setIsSubmitted(true);
       }
     } catch {
-      // Handle error
+      // Handle error silently
     }
   };
 

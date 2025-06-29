@@ -27,7 +27,7 @@ export default function LoginPage() {
         // Handle error
       }
     } catch {
-      // Handle error
+      // Handle error silently
     }
   };
 

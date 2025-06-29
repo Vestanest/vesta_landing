@@ -42,7 +42,7 @@ export default function SignupPage() {
         router.push("/");
       }
     } catch {
-      // Handle error
+      // Handle error silently
     }
   };
 
