@@ -1,5 +1,5 @@
 "use client";
-import { ThemeProvider } from "../contexts/ThemeContext";
+import { ThemeProvider } from "next-themes";
 import Navigation from "./Navigation";
 
 export default function ClientWrapper({
@@ -8,7 +8,7 @@ export default function ClientWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Navigation />
       {children}
     </ThemeProvider>

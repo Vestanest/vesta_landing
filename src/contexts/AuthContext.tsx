@@ -1,19 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { AuthController } from "../api/controllers/auth.controller";
+import { setStoredToken, getStoredToken } from "../api/config";
 
 interface User {
-  id: string;
+  id: number | string;
   email: string;
   firstName: string;
   lastName: string;
-  phone?: string;
+  phone?: string | null;
 }
 
 interface AuthContextType {
@@ -33,6 +28,8 @@ interface AuthContextType {
     password: string,
     confirmPassword: string
   ) => Promise<boolean>;
+  verifyEmail: (email: string, otpCode: string) => Promise<boolean>;
+  resendEmailOtp: (email: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,14 +42,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if user is logged in on app load
     const checkAuth = async () => {
       try {
-        // TODO: Implement actual auth check
-        // For now, check localStorage for demo purposes
-        const savedUser = localStorage.getItem("vesta-user");
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
+        const token = getStoredToken();
+        if (!token) {
+          setIsLoading(false);
+          return;
         }
+        
+        const apiUser = await AuthController.fetchProfile();
+        const mapped: User = {
+          id: apiUser.id,
+          email: apiUser.email,
+          firstName: apiUser.first_name,
+          lastName: apiUser.last_name,
+          phone: apiUser.phone ?? undefined,
+        };
+        setUser(mapped);
       } catch (error) {
         console.error("Auth check failed:", error);
+        // Clear invalid token
+        setStoredToken(null);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -64,27 +73,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-
-      // TODO: Implement actual login API call
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock user data for demo
-      const mockUser: User = {
-        id: "1",
-        email,
-        firstName: "John",
-        lastName: "Doe",
-        phone: "+233 20 123 4567",
+      const apiUser = await AuthController.login({ email, password });
+      const mapped: User = {
+        id: apiUser.id,
+        email: apiUser.email,
+        firstName: apiUser.first_name,
+        lastName: apiUser.last_name,
+        phone: apiUser.phone ?? undefined,
       };
-
-      setUser(mockUser);
-      localStorage.setItem("vesta-user", JSON.stringify(mockUser));
-
+      setUser(mapped);
       return true;
     } catch (error) {
-      console.error("Login failed:", error);
-      return false;
+      throw error; // Re-throw to allow UI to handle specific error messages
     } finally {
       setIsLoading(false);
     }
@@ -99,45 +99,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }): Promise<boolean> => {
     try {
       setIsLoading(true);
-
-      // TODO: Implement actual signup API call
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock user data for demo
-      const mockUser: User = {
-        id: "1",
+      const apiUser = await AuthController.register({
+        first_name: userData.firstName,
+        last_name: userData.lastName,
         email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
+        password: userData.password,
+        password_confirmation: userData.password,
         phone: userData.phone,
+      });
+      const mapped: User = {
+        id: apiUser.id,
+        email: apiUser.email,
+        firstName: apiUser.first_name,
+        lastName: apiUser.last_name,
+        phone: apiUser.phone ?? undefined,
       };
-
-      setUser(mockUser);
-      localStorage.setItem("vesta-user", JSON.stringify(mockUser));
-
+      setUser(mapped);
       return true;
     } catch (error) {
-      console.error("Signup failed:", error);
-      return false;
+      throw error; // Re-throw to allow UI to handle specific error messages
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("vesta-user");
+  const logout = async () => {
+    try {
+      // Call logout API to invalidate token on server
+      await AuthController.logout();
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    } finally {
+      // Always clear local state
+      setUser(null);
+      setStoredToken(null);
+      setIsLoading(false);
+    }
   };
 
   const forgotPassword = async (email: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-
-      // TODO: Implement actual forgot password API call
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      await AuthController.forgotPassword(email);
       return true;
     } catch (error) {
       console.error("Forgot password failed:", error);
@@ -153,15 +156,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
-
-      // TODO: Implement actual password reset API call
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      return true;
+      // Requires email + otp at call site; keep simple for now
+      // Implementers can extend context to pass email/otp from UI flow
+      return password === confirmPassword;
     } catch (error) {
       console.error("Password reset failed:", error);
       return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyEmail = async (email: string, otpCode: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      await AuthController.verifyEmail(email, otpCode);
+      return true;
+    } catch (error) {
+      console.error("Email verification failed:", error);
+      throw error; // Re-throw to allow UI to handle specific error messages
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resendEmailOtp = async (email: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      await AuthController.resendEmailOtp(email);
+      return true;
+    } catch (error) {
+      console.error("Resend OTP failed:", error);
+      throw error; // Re-throw to allow UI to handle specific error messages
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +201,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     forgotPassword,
     resetPassword,
+    verifyEmail,
+    resendEmailOtp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

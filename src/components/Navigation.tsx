@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,7 +11,7 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "next-themes";
 import { useAuth } from "../contexts/AuthContext";
 
 const menuItems = [
@@ -24,23 +24,41 @@ const menuItems = [
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { theme, toggleTheme, isInitialized } = useTheme();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    
+  const { setTheme, resolvedTheme } = useTheme();
+  // We need to wait for mount to avoid hydration mismatch, but next-themes handles suppression usually. 
+  // However, for the icon rendering, we need to know if mounted.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Ensure component is mounted to prevent hydration mismatch
+    setMounted(true);
+  }, []);
+
   const { user, logout } = useAuth();
   const pathname = usePathname();
 
   const handleThemeToggle = () => {
-    if (isInitialized) {
-      try {
-        toggleTheme();
-      } catch (error) {
-        console.error("Error toggling theme:", error);
-      }
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+    setShowUserMenu(false);
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      await logout();
+      setShowLogoutConfirm(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    setShowUserMenu(false);
+  const handleLogoutCancel = () => {
+    setShowLogoutConfirm(false);
   };
 
   const isActive = (href: string) => {
@@ -137,10 +155,10 @@ export default function Navigation() {
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
-                      {user.firstName.charAt(0)}
+                      {user.firstName?.charAt(0) || user.email?.charAt(0) || 'U'}
                     </span>
                   </div>
-                  <span>{user.firstName}</span>
+                  <span>{user.firstName || user.email || 'User'}</span>
                 </motion.button>
 
                 <AnimatePresence>
@@ -159,8 +177,16 @@ export default function Navigation() {
                           {user.email}
                         </p>
                       </div>
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setShowUserMenu(false)}
+                        className="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                      >
+                        <UserIcon className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Link>
                       <button
-                        onClick={handleLogout}
+                        onClick={handleLogoutClick}
                         className="w-full flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                       >
                         <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
@@ -209,7 +235,7 @@ export default function Navigation() {
             )}
 
             {/* Dark Mode Toggle */}
-            {isInitialized && (
+            {mounted && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -217,10 +243,10 @@ export default function Navigation() {
                 className="p-2 rounded-lg bg-orange-100 dark:bg-gray-800 text-orange-600 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-gray-700 transition-colors duration-200"
                 aria-label="Toggle dark mode"
               >
-                {theme === "light" ? (
-                  <MoonIcon className="h-5 w-5" />
-                ) : (
+                {resolvedTheme === "dark" ? (
                   <SunIcon className="h-5 w-5" />
+                ) : (
+                  <MoonIcon className="h-5 w-5" />
                 )}
               </motion.button>
             )}
@@ -229,7 +255,7 @@ export default function Navigation() {
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
             {/* Dark Mode Toggle for Mobile */}
-            {isInitialized && (
+            {mounted && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -237,10 +263,10 @@ export default function Navigation() {
                 className="p-2 rounded-lg bg-orange-100 dark:bg-gray-800 text-orange-600 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-gray-700 transition-colors duration-200"
                 aria-label="Toggle dark mode"
               >
-                {theme === "light" ? (
-                  <MoonIcon className="h-5 w-5" />
-                ) : (
+                {resolvedTheme === "dark" ? (
                   <SunIcon className="h-5 w-5" />
+                ) : (
+                  <MoonIcon className="h-5 w-5" />
                 )}
               </motion.button>
             )}
@@ -321,7 +347,7 @@ export default function Navigation() {
                     </div>
                     <button
                       onClick={() => {
-                        handleLogout();
+                        handleLogoutClick();
                         setIsOpen(false);
                       }}
                       className="w-full flex items-center text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
@@ -359,6 +385,55 @@ export default function Navigation() {
                 )}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Logout Confirmation Dialog */}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            onClick={handleLogoutCancel}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mr-3">
+                  <ArrowRightOnRectangleIcon className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Sign Out
+                </h3>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Are you sure you want to sign out? You&apos;ll need to sign in again to access your account.
+              </p>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleLogoutCancel}
+                  className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogoutConfirm}
+                  className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors duration-200"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
