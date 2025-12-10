@@ -1,161 +1,69 @@
-import {
-  SparklesIcon,
-  HomeIcon,
-  BuildingOffice2Icon,
-  SwatchIcon,
-  Square3Stack3DIcon,
-  TruckIcon,
-  WifiIcon,
-  ShieldCheckIcon,
-  FireIcon,
-  HeartIcon,
-} from "@heroicons/react/24/solid";
+import { SparklesIcon, HomeIcon } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import PropertyCard, { Property } from "./PropertyCard";
+import { PropertiesService } from "../api/services/properties.service";
+import { mediaUrl } from "../api/config";
+import { FeaturedProperty } from "../api/models";
 
-const properties: Property[] = [
-  {
-    id: 1,
-    title: "Modern Villa",
-    description:
-      "Spacious, sunlit, and located in a serene neighborhood with modern amenities.",
-    location: "Accra, Ghana",
-    rating: 4.8,
-    price: "450,000",
-    image:
-      "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
-    gradient: "from-orange-500 to-amber-500",
-    delay: 0.1,
-    features: [
-      {
-        name: "Bedrooms",
-        value: "4",
-        icon: BuildingOffice2Icon,
-      },
-      {
-        name: "Bathrooms",
-        value: "3",
-        icon: SwatchIcon,
-      },
-      {
-        name: "Area",
-        value: "3,200 sq ft",
-        icon: Square3Stack3DIcon,
-      },
-      {
-        name: "Parking",
-        value: "3 cars",
-        icon: TruckIcon,
-      },
-      {
-        name: "Pool",
-        value: "Private",
-        icon: FireIcon,
-      },
-      {
-        name: "Garden",
-        value: "Large",
-        icon: HeartIcon,
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Urban Apartment",
-    description:
-      "Contemporary design with city views and modern amenities in the heart of the city.",
-    location: "Kumasi, Ghana",
-    rating: 4.7,
-    price: "280,000",
-    image:
-      "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=600&q=80",
-    gradient: "from-amber-500 to-yellow-500",
-    delay: 0.2,
-    features: [
-      {
-        name: "Bedrooms",
-        value: "2",
-        icon: BuildingOffice2Icon,
-      },
-      {
-        name: "Bathrooms",
-        value: "2",
-        icon: SwatchIcon,
-      },
-      {
-        name: "Area",
-        value: "1,800 sq ft",
-        icon: Square3Stack3DIcon,
-      },
-      {
-        name: "Gym",
-        value: "Included",
-        icon: FireIcon,
-      },
-      {
-        name: "WiFi",
-        value: "High-speed",
-        icon: WifiIcon,
-      },
-      {
-        name: "Security",
-        value: "24/7",
-        icon: ShieldCheckIcon,
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Family Home",
-    description:
-      "Perfect for families, close to schools and parks with a beautiful garden.",
-    location: "Takoradi, Ghana",
-    rating: 4.9,
-    price: "520,000",
-    image:
-      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=600&q=80",
-    gradient: "from-yellow-500 to-orange-500",
-    delay: 0.3,
-    features: [
-      {
-        name: "Bedrooms",
-        value: "5",
-        icon: BuildingOffice2Icon,
-      },
-      {
-        name: "Bathrooms",
-        value: "4",
-        icon: SwatchIcon,
-      },
-      {
-        name: "Area",
-        value: "4,500 sq ft",
-        icon: Square3Stack3DIcon,
-      },
-      {
-        name: "Garden",
-        value: "Acres",
-        icon: HeartIcon,
-      },
-      {
-        name: "School",
-        value: "Nearby",
-        icon: ShieldCheckIcon,
-      },
-      {
-        name: "Parking",
-        value: "4 cars",
-        icon: TruckIcon,
-      },
-    ],
-  },
-];
+// No fallback; relies solely on API
 
 export default function FeaturedProperties() {
+  const [properties, setProperties] = useState<Property[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    PropertiesService.featured(6)
+      .then((items) => {
+        if (!isMounted) return;
+        const mapped: Property[] = items.map((p: FeaturedProperty, idx: number) => {
+          let images: string[] = [];
+          if (Array.isArray(p.images)) images = p.images as string[];
+          else if (typeof p.images === "string") {
+            try {
+              images = JSON.parse(p.images);
+            } catch {
+              images = [];
+            }
+          }
+          const image = mediaUrl(images[0] || p.image) ||
+            "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80";
+          const rawPrice = String(p.formatted_price ?? p.price ?? "0");
+          const priceSanitized = rawPrice
+            // strip currency symbols and leading non-digits
+            .replace(/^\D+/, "")
+            // normalize spaces
+            .trim();
+          // optionally drop trailing .00 for display symmetry with samples
+          const priceDisplay = priceSanitized.replace(/\.00$/, "");
+          return {
+            id: Number(p.id ?? idx + 1),
+            title: String(p.title ?? "Property"),
+            description: String(p.description ?? "Beautiful property with modern amenities."),
+            location: String(p.location ?? p.city ?? "Ghana"),
+            rating: Number(p.rating ?? 4.7),
+            price: priceDisplay,
+            image,
+            gradient: "from-orange-500 to-amber-500",
+            delay: 0.1 + idx * 0.1,
+            features: undefined,
+          } as Property;
+        });
+        setProperties(mapped);
+        // loaded
+      })
+      .catch(() => {
+        if (!isMounted) return;
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section
       id="properties"
-      className="relative py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden"
+      className="overflow-hidden relative px-4 py-20 bg-gradient-to-br from-gray-50 via-orange-50 to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
     >
       {/* Creative Background Elements */}
       <div className="absolute inset-0">
@@ -172,7 +80,7 @@ export default function FeaturedProperties() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-20 right-20 w-28 h-28 bg-gradient-to-br from-orange-300/30 to-amber-300/30 dark:from-orange-600/20 dark:to-amber-600/20 rounded-full blur-3xl"
+          className="absolute top-20 right-20 w-28 h-28 bg-gradient-to-br rounded-full blur-3xl from-orange-300/30 to-amber-300/30 dark:from-orange-600/20 dark:to-amber-600/20"
         />
 
         <motion.div
@@ -187,7 +95,7 @@ export default function FeaturedProperties() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute bottom-20 left-20 w-36 h-36 bg-gradient-to-br from-amber-300/30 to-yellow-300/30 dark:from-amber-600/20 dark:to-yellow-600/20 rounded-full blur-3xl"
+          className="absolute bottom-20 left-20 w-36 h-36 bg-gradient-to-br rounded-full blur-3xl from-amber-300/30 to-yellow-300/30 dark:from-amber-600/20 dark:to-yellow-600/20"
         />
 
         {/* Animated Grid Pattern */}
@@ -213,7 +121,7 @@ export default function FeaturedProperties() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-1/4 right-1/4 w-4 h-4 bg-orange-400/60 dark:bg-orange-500/40 rounded-full"
+          className="absolute top-1/4 right-1/4 w-4 h-4 rounded-full bg-orange-400/60 dark:bg-orange-500/40"
         />
 
         <motion.div
@@ -227,25 +135,25 @@ export default function FeaturedProperties() {
             ease: "easeInOut",
             delay: 3,
           }}
-          className="absolute bottom-1/4 left-1/4 w-3 h-3 bg-amber-400/60 dark:bg-amber-500/40 rounded-full"
+          className="absolute bottom-1/4 left-1/4 w-3 h-3 rounded-full bg-amber-400/60 dark:bg-amber-500/40"
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-10 mx-auto max-w-7xl">
         {/* Enhanced Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="mb-16 text-center"
         >
           <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 rounded-full text-sm font-medium mb-6"
+            className="inline-flex gap-2 items-center px-4 py-2 mb-6 text-sm font-medium text-orange-700 bg-orange-100 rounded-full dark:bg-orange-900/50 dark:text-orange-300"
           >
             <SparklesIcon className="w-4 h-4" />
             Premium Selection
@@ -256,7 +164,7 @@ export default function FeaturedProperties() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-4xl sm:text-5xl font-bold mb-6"
+            className="mb-6 text-4xl font-bold sm:text-5xl"
           >
             <span className="text-gray-900 dark:text-white">Featured</span>{" "}
             <span className="text-orange-600 dark:text-orange-400">
@@ -269,7 +177,7 @@ export default function FeaturedProperties() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed"
+            className="mx-auto max-w-3xl text-xl leading-relaxed text-gray-600 dark:text-gray-300"
           >
             Discover our handpicked selection of premium properties across
             Ghana, each carefully curated for exceptional living experiences.
@@ -277,11 +185,31 @@ export default function FeaturedProperties() {
         </motion.div>
 
         {/* Enhanced Properties Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties.map((property, i) => (
-            <PropertyCard key={i} property={property} />
-          ))}
-        </div>
+        {properties.length > 0 ? (
+          <div className="overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
+            <div className="flex gap-6 pr-4 snap-x snap-mandatory">
+              {properties.map((property, i) => (
+                <div key={i} className="snap-start shrink-0">
+                  <PropertyCard
+                    property={property}
+                    className="w-80 md:w-96"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="py-16 text-center">
+            <div className="p-10 mx-auto max-w-md bg-white rounded-2xl border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+              <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                No featured properties yet
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Check back soon. New featured listings will appear here once available.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Enhanced CTA Section */}
         <motion.div
@@ -289,25 +217,24 @@ export default function FeaturedProperties() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mt-16"
+          className="mt-16 text-center"
         >
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 border border-orange-200/50 dark:border-gray-600/50">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="p-8 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border dark:from-gray-800 dark:to-gray-700 border-orange-200/50 dark:border-gray-600/50">
+            <h3 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
               Can&apos;t Find What You&apos;re Looking For?
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-              Explore our complete property database with advanced filters and
-              personalized recommendations.
+            <p className="mx-auto mb-6 max-w-2xl text-gray-600 dark:text-gray-300">
+              Explore our complete property database with advanced filters and personalized recommendations.
             </p>
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg group"
+              className="inline-flex gap-3 items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-orange-600 to-amber-600 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl group"
             >
-              <HomeIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              <HomeIcon className="w-6 h-6 transition-transform group-hover:scale-110" />
               Browse All Properties
               <motion.svg
-                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                className="w-5 h-5 transition-transform group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

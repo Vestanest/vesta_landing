@@ -10,6 +10,7 @@ import {
   WifiIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/solid";
+import { mediaUrl } from "../api/config";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -95,7 +96,7 @@ export default function PropertyCard({
           {/* Enhanced Image Container */}
           <div className="relative h-56 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 overflow-hidden group">
             <motion.img
-              src={property.image}
+              src={mediaUrl(property.image)}
               alt={property.title}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
@@ -185,7 +186,7 @@ export default function PropertyCard({
                   ))}
                 </div>
 
-                <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed line-clamp-2">
                   {property.description}
                 </p>
                 <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 mb-4">

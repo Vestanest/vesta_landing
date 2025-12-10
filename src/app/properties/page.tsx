@@ -1,24 +1,33 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import ContactModal from "../../components/ContactModal";
+import PropertyCardSkeleton from "../../components/PropertyCardSkeleton";
+import AdvancedSearchModal from "../../components/AdvancedSearchModal";
+import SearchHistory from "../../components/SearchHistory";
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
   MapPinIcon,
   HomeIcon,
   BuildingOfficeIcon,
-  HeartIcon,
   EyeIcon,
   PhoneIcon,
   StarIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 
-// Property data
+import { PropertiesService, PropertiesListParams } from "../../api/services/properties.service";
+import { toApiError } from "../../api/errors";
+import { PropertyModel } from "../../api/models";
+import { mediaUrl } from "../../api/config";
+import { useSearch } from "../../contexts/SearchContext";
+
 interface Property {
   id: number;
   title: string;
@@ -34,226 +43,10 @@ interface Property {
   rating: number;
   views: number;
   description: string;
+  agentName: string;
+  agentEmail: string;
+  agentPhone: string;
 }
-
-const properties: Property[] = [
-  {
-    id: 1,
-    title: "Modern 3-Bedroom Apartment",
-    location: "East Legon, Accra",
-    price: 250000,
-    priceType: "sale",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 180,
-    type: "apartment",
-    image:
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.8,
-    views: 1247,
-    description:
-      "Beautiful modern apartment with stunning city views, fully furnished with premium amenities.",
-  },
-  {
-    id: 2,
-    title: "Luxury Villa with Pool",
-    location: "Trasacco Valley, Accra",
-    price: 850000,
-    priceType: "sale",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 450,
-    type: "villa",
-    image:
-      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.9,
-    views: 2156,
-    description:
-      "Exclusive luxury villa featuring a private pool, garden, and state-of-the-art security system.",
-  },
-  {
-    id: 3,
-    title: "Cozy 2-Bedroom House",
-    location: "Adenta, Accra",
-    price: 1800,
-    priceType: "rent",
-    bedrooms: 2,
-    bathrooms: 1,
-    area: 120,
-    type: "house",
-    image:
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop&crop=center",
-    featured: false,
-    rating: 4.6,
-    views: 892,
-    description:
-      "Perfect family home in a quiet neighborhood with easy access to schools and shopping centers.",
-  },
-  {
-    id: 4,
-    title: "Studio Apartment",
-    location: "Osu, Accra",
-    price: 1200,
-    priceType: "rent",
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 45,
-    type: "apartment",
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center",
-    featured: false,
-    rating: 4.4,
-    views: 567,
-    description:
-      "Modern studio apartment ideal for young professionals, fully equipped with modern appliances.",
-  },
-  {
-    id: 5,
-    title: "4-Bedroom Family Home",
-    location: "Vittin, Tamale",
-    price: 420000,
-    priceType: "sale",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 280,
-    type: "house",
-    image:
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.7,
-    views: 1432,
-    description:
-      "Spacious family home with large backyard, perfect for growing families who love outdoor activities.",
-  },
-  {
-    id: 6,
-    title: "Penthouse Suite",
-    location: "Airport Residential, Accra",
-    price: 1200000,
-    priceType: "sale",
-    bedrooms: 3,
-    bathrooms: 3,
-    area: 320,
-    type: "apartment",
-    image:
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 5.0,
-    views: 2891,
-    description:
-      "Luxurious penthouse with panoramic city views, private terrace, and premium finishes throughout.",
-  },
-  {
-    id: 7,
-    title: "2-Bedroom Townhouse",
-    location: "Kumasi, Ashanti",
-    price: 280000,
-    priceType: "sale",
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 150,
-    type: "townhouse",
-    image:
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop&crop=center",
-    featured: false,
-    rating: 4.5,
-    views: 734,
-    description:
-      "Modern townhouse in the heart of Kumasi, close to universities and business districts.",
-  },
-  {
-    id: 8,
-    title: "Executive Office Space",
-    location: "Ridge, Accra",
-    price: 3500,
-    priceType: "rent",
-    bedrooms: 0,
-    bathrooms: 2,
-    area: 200,
-    type: "office",
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&crop=center",
-    featured: false,
-    rating: 4.3,
-    views: 445,
-    description:
-      "Professional office space with meeting rooms, reception area, and modern business facilities.",
-  },
-  {
-    id: 9,
-    title: "Beachfront Villa",
-    location: "Kokrobite, Accra",
-    price: 950000,
-    priceType: "sale",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 380,
-    type: "villa",
-    image:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.9,
-    views: 1892,
-    description:
-      "Stunning beachfront villa with direct access to the ocean, perfect for those seeking luxury coastal living.",
-  },
-  {
-    id: 10,
-    title: "Modern Loft Apartment",
-    location: "Cantonments, Accra",
-    price: 3200,
-    priceType: "rent",
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 140,
-    type: "apartment",
-    image:
-      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=800&h=600&fit=crop&crop=center",
-    featured: false,
-    rating: 4.7,
-    views: 1023,
-    description:
-      "Contemporary loft-style apartment with high ceilings, exposed brick walls, and modern industrial design.",
-  },
-  {
-    id: 11,
-    title: "Garden Cottage",
-    location: "Aburi, Eastern Region",
-    price: 180000,
-    priceType: "sale",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 200,
-    type: "house",
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop&crop=center",
-    featured: false,
-    rating: 4.6,
-    views: 678,
-    description:
-      "Charming garden cottage surrounded by lush greenery, offering a peaceful retreat from city life.",
-  },
-  {
-    id: 12,
-    title: "Luxury Penthouse",
-    location: "Ridge, Accra",
-    price: 1500000,
-    priceType: "sale",
-    bedrooms: 4,
-    bathrooms: 4,
-    area: 450,
-    type: "apartment",
-    image:
-      "https://images.unsplash.com/photo-1568115286680-d203e08a8be6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    featured: true,
-    rating: 5.0,
-    views: 3245,
-    description:
-      "Ultra-luxurious penthouse with 360-degree city views, private elevator, and world-class amenities.",
-  },
-];
 
 const propertyTypes = [
   { id: "all", name: "All Types", icon: HomeIcon },
@@ -286,18 +79,132 @@ const locations = [
 
 function PropertiesContent() {
   const searchParams = useSearchParams();
+  const { 
+    currentFilters, 
+    updateFilters, 
+    saveSearchToHistory, 
+    getSearchSummary,
+    hasActiveFilters,
+    getFilterCount 
+  } = useSearch();
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [pagination, setPagination] = useState<{
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+  } | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [selectedPriceType, setSelectedPriceType] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("created_at_desc");
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(12);
+  
+  // Advanced search modal states
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showSearchHistory, setShowSearchHistory] = useState(false);
+
+  // Build API parameters from current filters
+  const buildApiParams = useCallback((): PropertiesListParams => {
+    const params: PropertiesListParams = {
+      page: currentPage,
+      per_page: perPage,
+      sort_by: sortBy,
+    };
+
+    // Add search term
+    if (searchTerm.trim()) {
+      params.search = searchTerm.trim();
+    }
+
+    // Add property type filter
+    if (selectedType !== "all") {
+      params.property_type = selectedType;
+    }
+
+    // Add price type filter
+    if (selectedPriceType !== "all") {
+      params.price_type = selectedPriceType;
+    }
+
+    // Add location filter
+    if (selectedLocation !== "all") {
+      params.location = selectedLocation;
+    }
+
+    // Add price range filter
+    if (selectedPriceRange !== "all") {
+      const [min, max] = selectedPriceRange.split("-").map(Number);
+      if (max) {
+        params.min_price = min;
+        params.max_price = max;
+      } else {
+        params.min_price = min;
+      }
+    }
+
+    return params;
+  }, [currentPage, perPage, sortBy, searchTerm, selectedType, selectedPriceType, selectedLocation, selectedPriceRange]);
+
+  // Fetch properties from API
+  const fetchProperties = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params = buildApiParams();
+      const response = await PropertiesService.list(params);
+      
+      const mapped: Property[] = response.properties.map((p: PropertyModel) => ({
+        id: p.id,
+        title: p.title,
+        location: `${p.location}, ${p.city}, ${p.region}`,
+        price: parseFloat(p.price),
+        priceType: p.price_type,
+        bedrooms: p.bedrooms,
+        bathrooms: p.bathrooms,
+        area: parseFloat(p.area_sqm),
+        type: p.property_type,
+        image: mediaUrl(p.image),
+        featured: p.is_featured,
+        rating: parseFloat(p.rating),
+        views: p.views_count,
+        description: p.description,
+        agentName: p.agent.name,
+        agentEmail: p.agent.email,
+        agentPhone: p.agent.phone || "",
+      }));
+      
+      setProperties(mapped);
+      setPagination(response.pagination);
+    } catch (e) {
+      console.error("Properties fetch error:", e);
+      const apiErr = toApiError(e);
+      setError(`Error loading properties: ${apiErr.message}`);
+      setProperties([]);
+      setPagination(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [buildApiParams]);
+
+  // Initial load and when filters change
+  useEffect(() => {
+    fetchProperties();
+  }, [fetchProperties]);
 
   // Handle URL parameters for location filtering
   useEffect(() => {
@@ -309,61 +216,77 @@ function PropertiesContent() {
     }
   }, [searchParams]);
 
-  // Filter properties based on search and filters
-  const filteredProperties = properties.filter((property) => {
-    const matchesSearch =
-      property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType =
-      selectedType === "all" || property.type === selectedType;
-    const matchesPriceType =
-      selectedPriceType === "all" || property.priceType === selectedPriceType;
-    const matchesLocation =
-      selectedLocation === "all" ||
-      property.location.toLowerCase().includes(selectedLocation.toLowerCase());
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedType, selectedPriceType, selectedLocation, selectedPriceRange, sortBy]);
 
-    let matchesPrice = true;
-    if (selectedPriceRange !== "all") {
-      const [min, max] = selectedPriceRange.split("-").map(Number);
-      if (max) {
-        matchesPrice = property.price >= min && property.price <= max;
-      } else {
-        matchesPrice = property.price >= min;
-      }
-    }
-
-    return (
-      matchesSearch &&
-      matchesType &&
-      matchesPrice &&
-      matchesPriceType &&
-      matchesLocation
-    );
-  });
-
-  // Sort properties
-  const sortedProperties = [...filteredProperties].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return b.rating - a.rating;
-      case "views":
-        return b.views - a.views;
-      default:
-        return b.featured ? 1 : -1;
-    }
-  });
-
-  const toggleFavorite = (propertyId: number) => {
-    setFavorites((prev) =>
-      prev.includes(propertyId)
-        ? prev.filter((id) => id !== propertyId)
-        : [...prev, propertyId]
-    );
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const handlePerPageChange = (newPerPage: number) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
+  // Advanced search handler
+  const handleAdvancedSearch = async (filters: {
+    searchTerm: string;
+    propertyType: string;
+    priceRange: [number, number];
+    priceType: string;
+    location: string;
+    bedrooms: [number, number];
+    bathrooms: [number, number];
+    areaRange: [number, number];
+    amenities: string[];
+    propertyStatus: string;
+    featured: boolean | null;
+    minRating: number;
+    sortBy: string;
+    sortOrder: string;
+  }) => {
+    try {
+      // Update the search context with new filters
+      updateFilters(filters);
+      
+      // Update local state to match advanced search filters
+      setSearchTerm(filters.searchTerm || "");
+      setSelectedType(filters.propertyType || "all");
+      setSelectedPriceType(filters.priceType || "all");
+      setSelectedLocation(filters.location || "all");
+      setSortBy(filters.sortBy || "created_at_desc");
+      
+      // Reset to first page
+      setCurrentPage(1);
+      
+      // Save search to history if user is logged in
+      if (filters.searchTerm || hasActiveFilters()) {
+        await saveSearchToHistory(
+          filters.searchTerm || "Advanced Search",
+          filters,
+          properties.length
+        );
+      }
+      
+      // Fetch properties with new filters
+      await fetchProperties();
+    } catch (error) {
+      console.error("Failed to perform advanced search:", error);
+    }
+  };
+
+  // Handle search history selection
+  const handleSearchHistorySelect = (query: string, filters: Record<string, unknown>) => {
+    setSearchTerm(query);
+    updateFilters(filters);
+    setCurrentPage(1);
+    fetchProperties();
+  };
+
 
   const formatPrice = (price: number, type: string) => {
     if (type === "rent") {
@@ -401,6 +324,38 @@ function PropertiesContent() {
               to luxury villas, we have the perfect home waiting for you.
             </p>
 
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-xl p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                      Unable to load properties
+                    </h3>
+                    <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                      {error}
+                    </p>
+                    <div className="mt-3">
+                      <button
+                        onClick={fetchProperties}
+                        className="text-sm bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 px-3 py-1 rounded-md hover:bg-red-200 dark:hover:bg-red-700 transition-colors"
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Location Filter Success Message */}
             {selectedLocation !== "all" && (
               <motion.div
@@ -433,9 +388,66 @@ function PropertiesContent() {
                   placeholder="Search by location, property type, or keywords..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                  className="w-full pl-12 pr-32 py-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 />
+                
+                {/* Search Action Buttons */}
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                  {/* Search History Button */}
+                  <button
+                    onClick={() => setShowSearchHistory(true)}
+                    className="p-2 text-gray-500 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-colors"
+                    title="Search History"
+                  >
+                    <ClockIcon className="w-5 h-5" />
+                  </button>
+                  
+                  {/* Advanced Search Button */}
+                  <button
+                    onClick={() => setShowAdvancedSearch(true)}
+                    className="flex items-center gap-2 px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                    title="Advanced Search"
+                  >
+                    <FunnelIcon className="w-4 h-4" />
+                    {getFilterCount() > 0 && (
+                      <span className="bg-white text-orange-500 text-xs px-1.5 py-0.5 rounded-full">
+                        {getFilterCount()}
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
+              
+              {/* Active Filters Summary */}
+              {hasActiveFilters() && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                >
+                  <FunnelIcon className="w-4 h-4" />
+                  <span>Active filters: {getSearchSummary()}</span>
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSelectedType("all");
+                      setSelectedPriceType("all");
+                      setSelectedLocation("all");
+                      setSortBy("created_at_desc");
+                      updateFilters({
+                        searchTerm: "",
+                        propertyType: "all",
+                        priceType: "all",
+                        location: "all",
+                        sortBy: "created_at_desc",
+                      });
+                    }}
+                    className="text-orange-500 hover:text-orange-600 underline"
+                  >
+                    Clear all
+                  </button>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -459,7 +471,7 @@ function PropertiesContent() {
                 </motion.button>
 
                 <span className="text-gray-600 dark:text-gray-300">
-                  {filteredProperties.length} properties found
+                  {pagination ? `${pagination.total} properties found` : `${properties.length} properties found`}
                 </span>
 
                 {/* Active Location Filter Indicator */}
@@ -504,11 +516,22 @@ function PropertiesContent() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
-                  <option value="featured">Featured</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                  <option value="views">Most Viewed</option>
+                  <option value="created_at_desc">Newest First</option>
+                  <option value="created_at_asc">Oldest First</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="rating_desc">Highest Rated</option>
+                  <option value="views_desc">Most Viewed</option>
+                </select>
+                
+                <select
+                  value={perPage}
+                  onChange={(e) => handlePerPageChange(Number(e.target.value))}
+                  className="px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  <option value={12}>12 per page</option>
+                  <option value={24}>24 per page</option>
+                  <option value={48}>48 per page</option>
                 </select>
               </div>
             </div>
@@ -633,16 +656,28 @@ function PropertiesContent() {
       <section className="px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
-            {sortedProperties.length > 0 ? (
+            {loading ? (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {Array.from({ length: perPage }, (_, i) => (
+                  <PropertyCardSkeleton key={i} />
+                ))}
+              </motion.div>
+            ) : (
+              <>
+                {properties.length > 0 ? (
               <motion.div
-                key={`${selectedType}-${selectedPriceRange}-${selectedPriceType}-${selectedLocation}-${sortBy}`}
+                key={`${selectedType}-${selectedPriceRange}-${selectedPriceType}-${selectedLocation}-${sortBy}-${currentPage}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               >
-                {sortedProperties.map((property, index) => (
+                {properties.map((property, index) => (
                   <motion.div
                     key={property.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -652,10 +687,12 @@ function PropertiesContent() {
                   >
                     {/* Property Image */}
                     <div className="relative h-64 overflow-hidden">
-                      <img
-                        src={property.image}
+                      <Image
+                        src={mediaUrl(property.image)}
                         alt={property.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
@@ -666,19 +703,6 @@ function PropertiesContent() {
                         </div>
                       )}
 
-                      {/* Favorite Button */}
-                      <button
-                        onClick={() => toggleFavorite(property.id)}
-                        className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200"
-                      >
-                        <HeartIcon
-                          className={`w-5 h-5 ${
-                            favorites.includes(property.id)
-                              ? "text-red-500 fill-red-500"
-                              : "text-white"
-                          }`}
-                        />
-                      </button>
 
                       {/* Price */}
                       <div className="absolute bottom-4 left-4">
@@ -732,7 +756,7 @@ function PropertiesContent() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-3">
+                      <div className="flex gap-2">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -742,11 +766,12 @@ function PropertiesContent() {
                           <PhoneIcon className="w-4 h-4" />
                           Contact
                         </motion.button>
+                        
                         <Link href={`/properties/${property.id}`}>
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="px-4 py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors duration-200"
+                            className="px-6 py-4 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors duration-200"
                           >
                             <EyeIcon className="w-4 h-4" />
                           </motion.button>
@@ -778,6 +803,8 @@ function PropertiesContent() {
                       setSelectedPriceRange("all");
                       setSelectedPriceType("all");
                       setSelectedLocation("all");
+                      setSortBy("created_at_desc");
+                      setCurrentPage(1);
                     }}
                     className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors duration-200"
                   >
@@ -785,6 +812,68 @@ function PropertiesContent() {
                   </button>
                 </div>
               </motion.div>
+                )}
+                
+                {/* Pagination */}
+                {pagination && pagination.last_page > 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4"
+                  >
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Showing {pagination.from} to {pagination.to} of {pagination.total} properties
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Previous
+                      </button>
+                      
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                          let pageNum;
+                          if (pagination.last_page <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= pagination.last_page - 2) {
+                            pageNum = pagination.last_page - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`px-3 py-2 rounded-lg transition-colors ${
+                                currentPage === pageNum
+                                  ? "bg-orange-500 text-white"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === pagination.last_page}
+                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </>
             )}
           </AnimatePresence>
         </div>
@@ -838,10 +927,26 @@ function PropertiesContent() {
       <ContactModal
         isOpen={showContactModal}
         onClose={() => setShowContactModal(false)}
+        propertyId={selectedProperty?.id}
         propertyTitle={selectedProperty?.title}
-        agentName="Vesta Nest Agent"
-        agentPhone="+233 20 123 4567"
-        agentEmail="info@vestanest.com"
+        agentName={selectedProperty?.agentName}
+        agentPhone={selectedProperty?.agentPhone}
+        agentEmail={selectedProperty?.agentEmail}
+      />
+
+      {/* Advanced Search Modal */}
+      <AdvancedSearchModal
+        isOpen={showAdvancedSearch}
+        onClose={() => setShowAdvancedSearch(false)}
+        onSearch={handleAdvancedSearch}
+        initialFilters={currentFilters}
+      />
+
+      {/* Search History Modal */}
+      <SearchHistory
+        isOpen={showSearchHistory}
+        onClose={() => setShowSearchHistory(false)}
+        onSelectSearch={handleSearchHistorySelect}
       />
 
       <Footer />
