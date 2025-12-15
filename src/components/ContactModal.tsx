@@ -1,15 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toApiError } from "../api/errors";
+import { CommunicationService } from "../api/services/communication.service";
+import { useAuth } from "../contexts/AuthContext";
 import {
   XMarkIcon,
   PhoneIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
+import { useToast } from "../contexts/ToastContext";
 
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
+  propertyId?: number;
   propertyTitle?: string;
   agentName?: string;
   agentPhone?: string;
@@ -19,36 +24,78 @@ interface ContactModalProps {
 export default function ContactModal({
   isOpen,
   onClose,
+  propertyId,
   propertyTitle,
   agentName,
   agentPhone,
   agentEmail,
 }: ContactModalProps) {
+  const { user } = useAuth();
+  const { showSuccess } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
-    preferredContact: "phone",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Prefill user details when modal opens and user is logged in
+  useEffect(() => {
+    if (!isOpen || !user) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      name:
+        prev.name || `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+      email: prev.email || user.email || "",
+      phone: prev.phone || user.phone || "",
+    }));
+  }, [isOpen, user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Contact form submitted:", formData);
-
-    // Show success message
-    alert("Thank you for your message! We'll get back to you soon.");
-
-    // Reset form and close modal
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      message: "",
-      preferredContact: "phone",
-    });
-    onClose();
+    try {
+      setSubmitting(true);
+      setError(null);
+      if (propertyId) {
+        await CommunicationService.contactAgentCreate({
+          property_id: propertyId,
+          full_name: formData.name,
+          email: formData.email,
+          phone_number: formData.phone,
+          message: formData.message,
+        });
+        await CommunicationService.inquiryCreate({
+          property_id: propertyId,
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          inquiry_type: "information",
+        });
+      } else {
+        await CommunicationService.contactMessageCreate({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: propertyTitle || "General Inquiry",
+          message: formData.message,
+        });
+      }
+      showSuccess("Thank you for your message! We'll get back to you soon.");
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+      onClose();
+    } catch (err) {
+      setError(toApiError(err).message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleInputChange = (
@@ -123,6 +170,11 @@ export default function ContactModal({
 
             {/* Contact Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 rounded-lg p-2 text-sm">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Full Name *
@@ -167,21 +219,7 @@ export default function ContactModal({
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Preferred Contact Method
-                </label>
-                <select
-                  name="preferredContact"
-                  value={formData.preferredContact}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="phone">Phone</option>
-                  <option value="email">Email</option>
-                  <option value="whatsapp">WhatsApp</option>
-                </select>
-              </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -204,9 +242,10 @@ export default function ContactModal({
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200"
+                  disabled={submitting}
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200 disabled:opacity-60"
                 >
-                  Send Message
+                  {submitting ? "Sending..." : "Send Message"}
                 </motion.button>
                 <motion.button
                   type="button"
