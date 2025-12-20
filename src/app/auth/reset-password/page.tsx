@@ -1,43 +1,103 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   EyeIcon,
   EyeSlashIcon,
   CheckIcon,
   CheckCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import Navigation from "../../../components/Navigation";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
+    email: "",
+    otp: "",
     password: "",
     confirmPassword: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { resetPassword } = useAuth();
+  const [isResetting, setIsResetting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const { } = useAuth(); // methods not used directly here as we use fetch for OTP flow
+  const { showSuccess, showError } = useToast();
+
+  useEffect(() => {
+    // Get email from URL params
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setFormData(prev => ({ ...prev, email: emailParam }));
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
+      const errorMessage = "Passwords do not match";
+      setError(errorMessage);
+      showError("Password mismatch", errorMessage);
+      return;
+    }
+
+    if (formData.otp.length !== 6) {
+      const errorMessage = "Please enter a valid 6-digit OTP";
+      setError(errorMessage);
+      showError("Invalid OTP", errorMessage);
       return;
     }
 
     try {
-      const success = await resetPassword(
-        formData.password,
-        formData.confirmPassword
-      );
-      if (success) {
+      setIsResetting(true);
+      setError(null);
+      
+      // Call the reset password API with OTP
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          otp_code: formData.otp,
+          password: formData.password,
+          password_confirmation: formData.confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const successMessage = "Password reset successfully! You can now sign in with your new password.";
+        setSuccess(successMessage);
+        showSuccess("Password reset!", successMessage);
         setIsSubmitted(true);
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          router.push("/auth/login?reset=true");
+        }, 3000);
+      } else {
+        const errorMessage = data.message || "Password reset failed. Please try again.";
+        setError(errorMessage);
+        showError("Reset failed", errorMessage);
       }
     } catch {
-      // Handle error silently
+      const errorMessage = "An error occurred. Please try again.";
+      setError(errorMessage);
+      showError("Reset failed", errorMessage);
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -165,6 +225,59 @@ export default function ResetPasswordPage() {
             onSubmit={handleSubmit}
           >
             <div className="space-y-4">
+              {/* Email Field (if not from URL) */}
+              {!formData.email && (
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                    placeholder="Enter your email"
+                  />
+                </div>
+              )}
+
+              {/* OTP Field */}
+              <div>
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Verification Code
+                </label>
+                <input
+                  id="otp"
+                  name="otp"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const numericValue = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setFormData(prev => ({ ...prev, otp: numericValue }));
+                    setError(null);
+                  }}
+                  className="w-full px-4 py-3 text-center text-2xl font-mono tracking-widest border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                  placeholder="000000"
+                  maxLength={6}
+                  required
+                />
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Enter the 6-digit code sent to your email
+                </p>
+              </div>
+
               {/* Password Field */}
               <div>
                 <label
@@ -272,15 +385,50 @@ export default function ResetPasswordPage() {
               </div>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <ExclamationTriangleIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{error}</span>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{success}</span>
+                </div>
+              </motion.div>
+            )}
+
             {/* Submit Button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              disabled={!isFormValid}
+              disabled={!isFormValid || isResetting}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
-              Update password
+              {isResetting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Resetting...
+                </>
+              ) : (
+                "Update password"
+              )}
             </motion.button>
 
             {/* Back to Login */}

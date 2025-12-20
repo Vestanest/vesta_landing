@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Navigation from "../../../components/Navigation";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,7 +14,8 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
-  const { login } = useAuth();
+  const { login, isLoading } = useAuth();
+  const { showSuccess, showError } = useToast();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,12 +24,12 @@ export default function LoginPage() {
     try {
       const success = await login(formData.email, formData.password);
       if (success) {
+        showSuccess("Welcome back!", "You have been successfully logged in.");
         router.push("/");
-      } else {
-        // Handle error
       }
-    } catch {
-      // Handle error silently
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred. Please try again.";
+      showError("Login failed", errorMessage);
     }
   };
 
@@ -174,9 +176,17 @@ export default function LoginPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
-              Sign in
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </motion.button>
 
             {/* Divider */}

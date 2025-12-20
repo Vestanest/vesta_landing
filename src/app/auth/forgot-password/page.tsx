@@ -5,11 +5,13 @@ import Link from "next/link";
 import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import Navigation from "../../../components/Navigation";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { forgotPassword } = useAuth();
+  const { showSuccess, showError } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +19,14 @@ export default function ForgotPasswordPage() {
     try {
       const success = await forgotPassword(email);
       if (success) {
+        showSuccess("Reset link sent!", "Please check your email for the password reset code.");
         setIsSubmitted(true);
+      } else {
+        showError("Failed to send reset link", "Please check your email address and try again.");
       }
-    } catch {
-      // Handle error silently
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "An unexpected error occurred. Please try again.";
+      showError("Failed to send reset link", message);
     }
   };
 
@@ -73,9 +79,22 @@ export default function ForgotPasswordPage() {
               transition={{ delay: 0.5 }}
               className="text-sm text-gray-600 dark:text-gray-400"
             >
-              Click the link in the email to reset your password. If you
-              don&apos;t see it, check your spam folder.
+              We&apos;ve sent a verification code to your email. Use the code below to reset your password.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mt-6"
+            >
+              <Link
+                href={`/auth/reset-password?email=${encodeURIComponent(email)}`}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200"
+              >
+                Reset Password
+              </Link>
+            </motion.div>
 
             {/* Back to Login */}
             <motion.div
@@ -100,15 +119,14 @@ export default function ForgotPasswordPage() {
               transition={{ delay: 0.7 }}
               className="mt-4"
             >
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Didn&apos;t receive the email?{" "}
-                <button
+              <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+              Don&apos;t worry, we&apos;ll send you reset instructions.
+            </p>    <button
                   onClick={() => setIsSubmitted(false)}
                   className="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-300 transition-colors duration-200"
                 >
                   Try again
                 </button>
-              </p>
             </motion.div>
           </motion.div>
         </div>
