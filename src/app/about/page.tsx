@@ -18,24 +18,40 @@ const teamMembers = [
     role: "CEO & Founder",
     image: "/api/placeholder/300/300",
     bio: "With over 15 years in real estate, Kwame leads Vesta Nest with vision and passion for transforming Ghana's property market.",
+    socials: {
+      twitter: "#",
+      linkedin: "#",
+    },
   },
   {
     name: "Ama Osei",
     role: "Head of Operations",
     image: "/api/placeholder/300/300",
     bio: "Ama ensures seamless operations and exceptional customer service across all our platforms and services.",
+    socials: {
+      twitter: "#",
+      linkedin: "#",
+    },
   },
   {
     name: "Kofi Mensah",
     role: "Technology Director",
     image: "/api/placeholder/300/300",
     bio: "Kofi drives our digital innovation, creating cutting-edge solutions for modern property management and search.",
+    socials: {
+      twitter: "#",
+      linkedin: "#",
+    },
   },
   {
     name: "Efua Addo",
     role: "Marketing Director",
     image: "/api/placeholder/300/300",
     bio: "Efua crafts compelling stories and strategies that connect Vesta Nest with our community and clients.",
+    socials: {
+      twitter: "#",
+      linkedin: "#",
+    },
   },
 ];
 
@@ -115,7 +131,7 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
                 Our Story
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 text-justify">
                 Founded in 2020, Vesta Nest emerged from a simple yet powerful
                 vision: to make finding the perfect home in Ghana as seamless
                 and enjoyable as possible. What started as a small team of
@@ -123,14 +139,14 @@ export default function AboutPage() {
                 comprehensive platform serving thousands of families across the
                 country.
               </p>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 text-justify">
                 We recognized that the traditional property search process was
                 often frustrating and time-consuming. Our founders experienced
                 this firsthand when searching for their own homes, which
                 inspired them to create a solution that would transform the
                 entire experience.
               </p>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
+              <p className="text-lg text-gray-600 dark:text-gray-300 text-justify">
                 Today, Vesta Nest stands as a testament to innovation, customer
                 service, and the belief that everyone deserves to find their
                 perfect home with ease and confidence.
@@ -146,7 +162,7 @@ export default function AboutPage() {
               <div className="bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl p-8 text-white">
                 <BuildingOfficeIcon className="w-16 h-16 mb-4" />
                 <h3 className="text-2xl font-bold mb-4">Building Dreams</h3>
-                <p className="text-orange-100">
+                <p className="text-orange-100 text-justify">
                   Every property we list represents someone&apos;s dream home.
                   We take this responsibility seriously and work tirelessly to
                   ensure every client finds their perfect match.
@@ -183,7 +199,7 @@ export default function AboutPage() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Our Mission
               </h3>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
+              <p className="text-lg text-gray-600 dark:text-gray-300 text-justify">
                 To provide innovative, reliable, and personalized real estate
                 solutions that empower individuals and families to find their
                 perfect homes, while contributing to the growth and development
@@ -201,7 +217,7 @@ export default function AboutPage() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Our Vision
               </h3>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
+              <p className="text-lg text-gray-600 dark:text-gray-300 text-justify">
                 To become Ghana&apos;s most trusted and innovative real estate
                 platform, setting new standards for customer service, technology
                 integration, and market transparency in the African property
@@ -333,6 +349,22 @@ export default function AboutPage() {
                 <p className="text-gray-600 dark:text-gray-300 text-center text-sm">
                   {member.bio}
                 </p>
+                <div className="flex justify-center gap-4 mt-4">
+                    {member.socials?.twitter && (
+                        <a href={member.socials.twitter} className="text-gray-400 hover:text-orange-500 transition-colors">
+                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                        </a>
+                    )}
+                    {member.socials?.linkedin && (
+                         <a href={member.socials.linkedin} className="text-gray-400 hover:text-orange-500 transition-colors">
+                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
+                            </svg>
+                        </a>
+                    )}
+                </div>
               </motion.div>
             ))}
           </div>

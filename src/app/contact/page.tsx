@@ -11,7 +11,10 @@ import {
   ClockIcon,
   ChatBubbleLeftRightIcon,
   BuildingOfficeIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import { CommunicationService } from "../../api/services/communication.service";
+import { toApiError } from "../../api/errors";
 
 const contactMethods = [
   {
@@ -89,6 +92,9 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -102,18 +108,34 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-    });
+    try {
+      setSubmitting(true);
+      setError(null);
+      setSuccess(false);
+      
+      await CommunicationService.contactMessageCreate({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject || "General Inquiry",
+        message: formData.message,
+      });
+      
+      setSuccess(true);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (err) {
+      setError(toApiError(err).message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -208,6 +230,34 @@ export default function ContactPage() {
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
                 Send Us a Message
               </h2>
+              
+              {/* Success Message */}
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700 rounded-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <CheckCircleIcon className="w-5 h-5" />
+                    <span className="font-semibold">Message sent successfully!</span>
+                  </div>
+                  <p className="text-sm mt-1">We&apos;ll get back to you soon.</p>
+                </motion.div>
+              )}
+              
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 rounded-lg"
+                >
+                  <p className="font-semibold">Error sending message</p>
+                  <p className="text-sm mt-1">{error}</p>
+                </motion.div>
+              )}
+              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -312,11 +362,14 @@ export default function ContactPage() {
 
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200"
+                  whileHover={{ scale: submitting ? 1 : 1.02 }}
+                  whileTap={{ scale: submitting ? 1 : 0.98 }}
+                  disabled={submitting}
+                  className={`w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200 ${
+                    submitting ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Send Message
+                  {submitting ? "Sending..." : "Send Message"}
                 </motion.button>
               </form>
             </motion.div>
