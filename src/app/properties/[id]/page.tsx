@@ -1,582 +1,353 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
-import Navigation from "../../../components/Navigation";
-import Footer from "../../../components/Footer";
-import ScheduleModal from "../../../components/ScheduleModal";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { PropertiesService } from "@/api/services/properties.service";
+import { PropertyModel } from "@/api/models";
+import { mediaUrl } from "@/api/config";
+import AmenitiesList from "@/components/AmenitiesList";
+import ContactModal from "@/components/ContactModal";
+import ScheduleModal from "@/components/ScheduleModal";
+import ReviewsSection from "@/components/ReviewsSection";
+import Footer from "@/components/Footer";
+import { useToast } from "@/contexts/ToastContext";
 import {
   MapPinIcon,
+  ArrowLeftIcon,
   HomeIcon,
-  BuildingOfficeIcon,
-  StarIcon,
-  HeartIcon,
+  CheckCircleIcon,
+  Square2StackIcon,
+  CurrencyDollarIcon,
   PhoneIcon,
   EnvelopeIcon,
-  CalendarIcon,
-  ArrowLeftIcon,
+  CalendarDaysIcon,
+  ShareIcon,
+  HeartIcon
 } from "@heroicons/react/24/outline";
-
-interface Property {
-  id: number;
-  title: string;
-  location: string;
-  price: number;
-  priceType: string;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  type: string;
-  image: string;
-  featured: boolean;
-  rating: number;
-  views: number;
-  description: string;
-  detailedDescription: string;
-  amenities: string[];
-  images: string[];
-  agent: {
-    name: string;
-    phone: string;
-    email: string;
-    image: string;
-  };
-}
-
-// Property data (same as main properties page)
-const properties: Property[] = [
-  {
-    id: 1,
-    title: "Modern 3-Bedroom Apartment",
-    location: "East Legon, Accra",
-    price: 250000,
-    priceType: "sale",
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 180,
-    type: "apartment",
-    image:
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.8,
-    views: 1247,
-    description:
-      "Beautiful modern apartment with stunning city views, fully furnished with premium amenities.",
-    detailedDescription:
-      "This stunning 3-bedroom apartment offers the perfect blend of luxury and comfort. Located in the prestigious East Legon area, this property features modern architecture with premium finishes throughout. The open-plan living area flows seamlessly into a fully equipped kitchen with granite countertops and stainless steel appliances. Each bedroom is generously sized with built-in wardrobes, while the master suite includes an en-suite bathroom with a walk-in shower. The apartment also features a private balcony with panoramic city views, perfect for morning coffee or evening relaxation. Building amenities include 24/7 security, a swimming pool, gym, and dedicated parking spaces.",
-    amenities: [
-      "Air Conditioning",
-      "Balcony",
-      "Built-in Wardrobes",
-      "Swimming Pool",
-      "Gym",
-      "24/7 Security",
-      "Parking Space",
-      "Modern Kitchen",
-      "En-suite Master Bedroom",
-      "City Views",
-    ],
-    images: [
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop&crop=center",
-    ],
-    agent: {
-      name: "Kwame Asante",
-      phone: "+233 20 123 4567",
-      email: "kwame@vestanest.com",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-    },
-  },
-  {
-    id: 2,
-    title: "Luxury Villa with Pool",
-    location: "Trasacco Valley, Accra",
-    price: 850000,
-    priceType: "sale",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 450,
-    type: "villa",
-    image:
-      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.9,
-    views: 2156,
-    description:
-      "Exclusive luxury villa featuring a private pool, garden, and state-of-the-art security system.",
-    detailedDescription:
-      "This magnificent 5-bedroom luxury villa is the epitome of sophisticated living. Set in the exclusive Trasacco Valley, this property offers unparalleled privacy and security. The grand entrance leads to a spacious living area with high ceilings and floor-to-ceiling windows that flood the space with natural light. The gourmet kitchen features premium appliances and a large center island perfect for entertaining. Each of the five bedrooms is a sanctuary of comfort, with the master suite boasting a private balcony, walk-in closet, and luxurious en-suite bathroom with a freestanding bathtub. The outdoor area includes a private swimming pool, landscaped gardens, and a covered terrace ideal for al fresco dining. Additional features include a home theater, wine cellar, and smart home automation system.",
-    amenities: [
-      "Private Swimming Pool",
-      "Landscaped Gardens",
-      "Home Theater",
-      "Wine Cellar",
-      "Smart Home Automation",
-      "Security System",
-      "Staff Quarters",
-      "Gourmet Kitchen",
-      "Master Suite with Balcony",
-      "Covered Terrace",
-    ],
-    images: [
-      "https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop&crop=center",
-    ],
-    agent: {
-      name: "Abdul Basit Yahaya",
-      phone: "+233 24 987 6543",
-      email: "ama@vestanest.com",
-      image:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face",
-    },
-  },
-  {
-    id: 3,
-    title: "Family Home",
-    location: "Takoradi, Ghana",
-    price: 520000,
-    priceType: "sale",
-    bedrooms: 5,
-    bathrooms: 4,
-    area: 450,
-    type: "house",
-    image:
-      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop&crop=center",
-    featured: true,
-    rating: 4.9,
-    views: 1890,
-    description:
-      "Perfect for families, close to schools and parks with a beautiful garden.",
-    detailedDescription:
-      "This spacious 5-bedroom family home is ideally located in a quiet, family-friendly neighborhood in Takoradi. The property features a large, well-maintained garden perfect for children to play and for family gatherings. The open-plan living area includes a modern kitchen with granite countertops and a cozy family room with a fireplace. Each bedroom is generously sized with built-in wardrobes, and the master suite includes an en-suite bathroom and a private balcony. The property is conveniently located near excellent schools, parks, and shopping centers, making it perfect for families. Additional features include a double garage, security system, and a beautiful outdoor entertainment area.",
-    amenities: [
-      "Large Garden",
-      "Double Garage",
-      "Security System",
-      "Fireplace",
-      "Modern Kitchen",
-      "Built-in Wardrobes",
-      "Master Suite with Balcony",
-      "Outdoor Entertainment Area",
-      "Near Schools",
-      "Near Parks",
-    ],
-    images: [
-      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop&crop=center",
-    ],
-    agent: {
-      name: "Sarah Mensah",
-      phone: "+233 26 456 7890",
-      email: "sarah@vestanest.com",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
-    },
-  },
-  // Add more properties with detailed information...
-];
+import { StarIcon } from "@heroicons/react/24/solid";
 
 export default function PropertyDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [property, setProperty] = useState<Property | null>(null);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [contactForm, setContactForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
+  const id = params?.id as string;
+
+  const [property, setProperty] = useState<PropertyModel | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState<string>("");
+  
+  // Modal states
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+
+  const { showSuccess, showError } = useToast();
+
+  const handleShare = async () => {
+    if (!property) return;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: property.title,
+          text: `Check out this property in ${property.city}: ${property.title}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+             console.error("Error sharing:", err);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        showSuccess("Link copied to clipboard!");
+      } catch {
+        showError("Failed to copy link.");
+      }
+    }
+  };
 
   useEffect(() => {
-    const propertyId = parseInt(params.id as string);
-    const foundProperty = properties.find((p) => p.id === propertyId);
-    if (foundProperty) {
-      setProperty(foundProperty);
-    } else {
-      router.push("/properties");
-    }
-  }, [params.id, router]);
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        if (!id) return;
+        const rawData = await PropertiesService.show(id);
+        // Handle wrapped response if service fix hasn't propagated or API structure varies
+        // @ts-expect-error - Runtime check for data wrapper
+        const data = rawData?.success && rawData?.data?.property ? rawData.data.property : rawData;
+        
+        setProperty(data);
+        setActiveImage(data.image);
+      } catch (err) {
+        console.error("Failed to fetch property:", err);
+        setError("Failed to load property details. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle contact form submission
-    console.log("Contact form submitted:", contactForm);
-    setShowContactForm(false);
-    setContactForm({ name: "", email: "", phone: "", message: "" });
-  };
+    fetchProperty();
+  }, [id]);
 
-  const formatPrice = (price: number, type: string) => {
-    if (type === "rent") {
-      return `GH¢${price.toLocaleString()}/month`;
-    }
-    return `GH¢${price.toLocaleString()}`;
-  };
-
-  if (!property) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <Navigation />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-300">
-              Loading property details...
-            </p>
-          </div>
-        </div>
+      <div className="min-h-screen pt-24 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <Navigation />
+  if (error || !property) {
+    return (
+      <div className="min-h-screen pt-24 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Oops! Something went wrong.</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-8">{error || "Property not found"}</p>
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl transition-colors"
+        >
+          <ArrowLeftIcon className="w-5 h-5" />
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
-      {/* Back Button */}
-      <div className="pt-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors duration-200 mb-6"
-          >
-            <ArrowLeftIcon className="w-5 h-5" />
+  // Parse images if they are JSON string or get active image
+  const images = Array.isArray(property.images) 
+    ? property.images 
+    : typeof property.images === 'string' && property.images.startsWith('[')
+      ? JSON.parse(property.images)
+      : [property.image];
+
+  // Include main image if not in list
+  const allImages = [property.image, ...images.filter((img: string) => img !== property.image)];
+  const uniqueImages = Array.from(new Set(allImages)) as string[];
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-12 animate-fade-in">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Navigation */}
+        <div className="flex justify-between items-center mb-6">
+            <button
+            onClick={() => router.push("/properties")}
+            className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            >
+            <ArrowLeftIcon className="w-4 h-4 mr-1" />
             Back to Properties
-          </motion.button>
+            </button>
+            <div className="flex gap-2">
+                 <button className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-gray-800 rounded-full shadow-sm hover:shadow">
+                    <HeartIcon className="w-5 h-5" />
+                 </button>
+                 <button onClick={handleShare} className="p-2 text-gray-400 hover:text-primary-500 transition-colors bg-white dark:bg-gray-800 rounded-full shadow-sm hover:shadow">
+                    <ShareIcon className="w-5 h-5" />
+                 </button>
+            </div>
+        </div>
+
+        {/* Gallery Section - Full width main image with thumbnails below */}
+        <div className="space-y-4 mb-8">
+            <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 bg-gray-200 dark:bg-gray-800 h-[400px] md:h-[500px] lg:h-[600px]"
+            >
+            <Image
+                src={mediaUrl(activeImage || property.image)}
+                alt={property.title}
+                fill
+                className="object-cover"
+                priority
+            />
+             <div className="absolute top-4 left-4 flex gap-2">
+                {property.is_featured && (
+                     <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-amber-500 shadow-sm">
+                     Featured
+                 </span>
+                )}
+            </div>
+            </motion.div>
+            
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-1">
+                {uniqueImages.map((img: string, idx: number) => (
+                <button
+                    key={idx}
+                    onClick={() => setActiveImage(img)}
+                    className={`relative w-32 h-24 md:w-40 md:h-28 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all transform hover:scale-105 ${
+                    activeImage === img ? "border-primary-500 ring-2 ring-primary-500/20 shadow-md" : "border-transparent hover:border-gray-300 dark:hover:border-gray-600 opacity-70 hover:opacity-100"
+                    }`}
+                >
+                    <Image
+                    src={mediaUrl(img)}
+                    alt={`View ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    />
+                </button>
+                ))}
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Main Content - Left Column */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Property Details Header */}
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">{property.title}</h1>
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <MapPinIcon className="w-5 h-5 flex-shrink-0 text-primary-500" />
+                    <span className="text-lg">{property.location}, {property.city}</span>
+                  </div>
+                </div>
+                <div className="text-left md:text-right">
+                    <p className="text-3xl md:text-4xl font-extrabold text-orange-600 dark:text-orange-500">
+                        {property.formatted_price || property.price}
+                    </p>
+                    <div className="flex items-center gap-1 mt-2 justify-start md:justify-end">
+                        <StarIcon className="w-5 h-5 text-yellow-500" />
+                        <span className="font-bold text-gray-900 dark:text-white">{property.rating || "New"}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">({property.views_count || 0} views)</span>
+                    </div>
+                </div>
+              </div>
+
+              {/* Key Features Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-8 border-t border-b border-gray-100 dark:border-gray-700">
+                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl group hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Bedrooms</span>
+                    <div className="flex items-center gap-2">
+                        <HomeIcon className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:text-primary-500 transition-colors" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{property.bedrooms}</span>
+                    </div>
+                </div>
+                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl group hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Bathrooms</span>
+                    <div className="flex items-center gap-2">
+                        <CheckCircleIcon className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:text-primary-500 transition-colors" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{property.bathrooms}</span>
+                    </div>
+                </div>
+                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl group hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Area</span>
+                    <div className="flex items-center gap-2">
+                        <Square2StackIcon className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:text-primary-500 transition-colors" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{property.area_sqm}<span className="text-sm font-normal text-gray-500 ml-1">m²</span></span>
+                    </div>
+                </div>
+                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl group hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Type</span>
+                    <div className="flex items-center gap-2">
+                        <CurrencyDollarIcon className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:text-primary-500 transition-colors" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-white capitalize">{property.property_type}</span>
+                    </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mt-8">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    Description
+                </h3>
+                <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+                    <p>{property.description}</p>
+                </div>
+              </div>
+
+               {/* Amenities */}
+               <div className="mt-10 pt-8 border-t border-gray-100 dark:border-gray-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Amenities</h3>
+                <AmenitiesList amenities={property.amenities} />
+              </div>
+
+              {/* Reviews Section */}
+              <ReviewsSection propertyId={property.id} />
+
+            </div>
+          </div>
+
+          {/* Sidebar - Right Column - Buttons & Actions */}
+          <div className="space-y-6">
+            
+             {/* Action Card */}
+             <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-gray-100 dark:border-gray-700 sticky top-24">
+                 
+                 {/* Agent Snippet */}
+                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-gray-700">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-100 to-amber-100 dark:from-primary-900/50 dark:to-amber-900/50 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-xl shadow-inner">
+                        {(property.agent?.name || property.owner?.name || "A").charAt(0)}
+                    </div>
+                    <div>
+                        <p className="font-bold text-gray-900 dark:text-white text-lg">{property.agent?.name || property.owner?.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Listing Agent</p>
+                        {(property.agent?.email || property.owner?.email) && (
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{property.agent?.email || property.owner?.email}</p>
+                        )}
+                    </div>
+                 </div>
+
+                 <div className="space-y-3">
+                     <button 
+                        onClick={() => setScheduleModalOpen(true)}
+                        className="w-full py-4 px-6 bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                     >
+                         <CalendarDaysIcon className="w-5 h-5" />
+                         Request a Tour
+                     </button>
+                     
+                     <button 
+                        onClick={() => setContactModalOpen(true)}
+                        className="w-full py-4 px-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500 text-gray-900 dark:text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                     >
+                         <EnvelopeIcon className="w-5 h-5" />
+                         Contact Agent
+                     </button>
+
+                     <button className="w-full py-3 px-6 text-primary-600 dark:text-primary-400 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
+                        <PhoneIcon className="w-5 h-5" />
+                        {property.agent?.phone || property.owner?.phone || "Call Agent"}
+                     </button>
+                 </div>
+                 
+                 <div className="mt-6 text-center">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest font-mono">
+                        Ref: VN-{property.id}
+                    </p>
+                 </div>
+             </div>
+          </div>
         </div>
       </div>
 
-      {/* Property Header */}
-      <section className="px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden"
-          >
-            {/* Main Image */}
-            <div className="relative h-96 lg:h-[500px]">
-              <img
-                src={property.images[selectedImage]}
-                alt={property.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-
-              {/* Featured Badge */}
-              {property.featured && (
-                <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  Featured
-                </div>
-              )}
-
-              {/* Favorite Button */}
-              <button
-                onClick={() => setIsFavorite(!isFavorite)}
-                className="absolute top-4 right-4 p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200"
-              >
-                <HeartIcon
-                  className={`w-6 h-6 ${
-                    isFavorite ? "text-red-500 fill-red-500" : "text-white"
-                  }`}
-                />
-              </button>
-
-              {/* Price */}
-              <div className="absolute bottom-4 left-4">
-                <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-lg">
-                  <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                    {formatPrice(property.price, property.priceType)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Image Gallery */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex gap-4 overflow-x-auto p-2">
-                {property.images.map((image: string, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden ${
-                      selectedImage === index ? "ring-2 ring-orange-500" : ""
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${property.title} - Image ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Property Info */}
-            <div className="p-6">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                <div className="flex-1">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                    {property.title}
-                  </h1>
-
-                  <div className="flex items-center gap-2 mb-4">
-                    <MapPinIcon className="w-5 h-5 text-orange-500" />
-                    <span className="text-gray-600 dark:text-gray-300">
-                      {property.location}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-6 mb-6">
-                    <div className="flex items-center gap-1">
-                      <HomeIcon className="w-5 h-5 text-orange-500" />
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {property.bedrooms} Bedrooms
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <BuildingOfficeIcon className="w-5 h-5 text-orange-500" />
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {property.bathrooms} Bathrooms
-                      </span>
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">
-                      {property.area} m²
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <StarIcon className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {property.rating}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                    {property.detailedDescription}
-                  </p>
-                </div>
-
-                {/* Contact Agent */}
-                <div className="lg:w-80">
-                  <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                      Contact Agent
-                    </h3>
-
-                    <div className="flex items-center gap-4 mb-6">
-                      <img
-                        src={property.agent.image}
-                        alt={property.agent.name}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {property.agent.name}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Vesta Nest Agent
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center gap-3">
-                        <PhoneIcon className="w-5 h-5 text-orange-500" />
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {property.agent.phone}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <EnvelopeIcon className="w-5 h-5 text-orange-500" />
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {property.agent.email}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setShowContactForm(true)}
-                        className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200 flex items-center justify-center gap-2"
-                      >
-                        <PhoneIcon className="w-5 h-5" />
-                        Contact Agent
-                      </motion.button>
-
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setShowScheduleModal(true)}
-                        className="w-full border border-orange-500 text-orange-500 py-3 px-4 rounded-lg font-semibold hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors duration-200 flex items-center justify-center gap-2"
-                      >
-                        <CalendarIcon className="w-5 h-5" />
-                        Schedule Viewing
-                      </motion.button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Amenities Section */}
-      <section className="px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6"
-          >
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              Amenities & Features
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {property.amenities.map((amenity: string, index: number) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                  <span className="text-gray-600 dark:text-gray-300">
-                    {amenity}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Form Modal */}
-      <AnimatePresence>
-        {showContactForm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowContactForm(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md"
-            >
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Contact Agent
-              </h3>
-              <form onSubmit={handleContactSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={contactForm.name}
-                    onChange={(e) =>
-                      setContactForm({ ...contactForm, name: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={contactForm.email}
-                    onChange={(e) =>
-                      setContactForm({ ...contactForm, email: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={contactForm.phone}
-                    onChange={(e) =>
-                      setContactForm({ ...contactForm, phone: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Message *
-                  </label>
-                  <textarea
-                    required
-                    rows={4}
-                    value={contactForm.message}
-                    onChange={(e) =>
-                      setContactForm({
-                        ...contactForm,
-                        message: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
-                    placeholder="Tell us about your interest in this property..."
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <motion.button
-                    type="submit"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white py-2 px-4 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200"
-                  >
-                    Send Message
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowContactForm(false)}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                  >
-                    Cancel
-                  </motion.button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Schedule Modal */}
-      <ScheduleModal
-        isOpen={showScheduleModal}
-        onClose={() => setShowScheduleModal(false)}
-        propertyTitle={property?.title}
-        propertyLocation={property?.location}
+      {/* Modals */}
+      <ContactModal 
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        propertyId={property.id}
+        propertyTitle={property.title}
+        agentName={property.agent?.name || property.owner?.name}
+        agentEmail={property.agent?.email || property.owner?.email || undefined}
+        agentPhone={property.agent?.phone || property.owner?.phone || undefined}
       />
 
-      <Footer />
+      <ScheduleModal
+        isOpen={scheduleModalOpen}
+        onClose={() => setScheduleModalOpen(false)}
+        propertyId={property.id}
+        propertyTitle={property.title}
+        propertyLocation={property.location}
+      />
+      <div className="mt-20">
+        <Footer />
+      </div>
     </div>
   );
 }

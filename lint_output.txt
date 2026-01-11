@@ -1,0 +1,116 @@
+
+> vesta-landing@0.1.0 lint
+> next lint
+
+
+./src/api/controllers/auth.controller.ts
+25:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/api/services/auth.service.ts
+20:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/api/services/search.service.ts
+12:12  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+21:12  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+139:53  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+155:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+181:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+194:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+200:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+211:58  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+216:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+217:78  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+242:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+260:78  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+261:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+262:78  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+273:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+279:30  Error: 'params' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/auth/forgot-password/page.tsx
+27:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+81:17  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./src/app/auth/reset-password/page.tsx
+12:3  Error: 'ArrowLeftIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+33:11  Error: 'resetPassword' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+96:14  Error: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+96:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/auth/verify-email/page.tsx
+72:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+93:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+184:17  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+272:21  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./src/app/dashboard/activity/page.tsx
+15:3  Error: 'MapPinIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+17:3  Error: 'BuildingOfficeIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+32:9  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+37:15  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+58:6  Warning: React Hook useEffect has a missing dependency: 'loadActivities'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+323:66  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+341:69  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/dashboard/page.tsx
+11:3  Error: 'HeartIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+15:3  Error: 'EnvelopeIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+16:3  Error: 'MapPinIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+18:3  Error: 'ChartBarIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+20:3  Error: 'BellIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+21:3  Error: 'ShieldCheckIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+22:3  Error: 'StarIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+24:3  Error: 'BuildingOfficeIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+25:3  Error: 'ClockIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+41:11  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+47:17  Error: 'logout' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+48:11  Error: 'getFilterCount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+48:27  Error: 'hasActiveFilters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard/profile/page.tsx
+54:10  Error: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+54:19  Error: 'setLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+111:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+147:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+275:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/dashboard/settings/page.tsx
+12:3  Error: 'EyeIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+13:3  Error: 'EyeSlashIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+20:3  Error: 'GlobeAltIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+21:3  Error: 'UserGroupIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+117:67  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+122:67  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+141:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+163:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+275:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/locations/page.tsx
+208:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/properties/[id]/layout.tsx
+2:10  Error: 'generatePropertyMetadata' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/AdvancedSearchModal.tsx
+9:3  Error: 'BuildingOfficeIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+10:3  Error: 'CurrencyDollarIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+12:3  Error: 'ClockIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+171:73  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+269:59  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/AmenitiesList.tsx
+12:3  Error: 'PhoneIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+41:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/GoogleAnalytics.tsx
+42:10  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+51:10  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ImageGallery.tsx
+53:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+99:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+138:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

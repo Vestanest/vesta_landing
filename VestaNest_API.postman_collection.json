@@ -1,0 +1,303 @@
+{
+	"info": {
+		"_postman_id": "vestanest-api-enhanced-v1",
+		"name": "VestaNest API (Enhanced)",
+		"description": "# 🏡 VestaNest API Documentation\n\nWelcome to the **VestaNest API**, the digital backbone of your premier real estate experience.\n\nThis collection provides meaningful interactions with our platform, from finding dream homes to managing property portfolios. We've organized everything to help you build beautiful interfaces with ease.\n\n## 🚀 Getting Started\n\n1.  **Environment**: Set your `baseUrl` variable. Default is `http://localhost:8000`.\n2.  **Authentication**: Most meaningful actions require a token. Use the `Auth > Login` request to get one, then paste it into the `token` collection variable.\n\n## 📂 Collection Structure\n\n*   **🔐 Auth**: Your gateway. Register, login, and manage your digital identity.\n*   **🏠 Properties**: The heart of VestaNest. Browse, filter, and admire our listings.\n*   **✨ Amenities**: detailed look at what makes each property special.\n*   **👀 Views**: Track engagement and see what's trending.\n*   **⚖️ Comparisons**: Help users make the hard choices by comparing properties side-by-side.\n*   **📬 Communication**: Connect buyers with agents and properties.\n*   **📰 Newsletter**: Keep your users in the loop.\n*   **🛡️ Admin**: Powerful tools for platform managers.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "imageBaseUrl",
+			"value": "{{baseUrl}}/storage/",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Auth",
+			"description": "Everything related to user identity. Start here by registering or logging in to receive your access token.",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/auth/register", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"phone\": \"+233555111222\"\n}"
+						},
+						"description": "**Create a new account.**\n\nJoin the VestaNest community. Requires basic details and a secure password."
+					}
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"description": "**Access your account.**\n\nReturns an authentication token. \n\n> ⚠️ **Important**: Copy the `token` from the response and update your collection variable!"
+					}
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/auth/verify-email", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","verify-email"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"otp_code\": \"123456\"\n}"
+						},
+						"description": "**Verify your identity.**\n\nSubmit the OTP sent to your email address to activate your account fully."
+					}
+				},
+				{
+					"name": "Logout (Current Device)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","logout"] },
+						"description": "**Securely sign out.**\n\nInvalidates the token used for this request."
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/auth/profile", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","profile"] },
+						"description": "**Who am I?**\n\nRetrieve the details of the currently authenticated user."
+					}
+				}
+			]
+		},
+		{
+			"name": "🏠 Properties",
+			"description": "The showcase. Browse our extensive list of properties.\n\n### 🖼️ Images\nProperties include image paths (e.g. `properties/abc.jpg`).\n\nTo view them, prepend the `imageBaseUrl`:\n`{{imageBaseUrl}}properties/abc.jpg`\n\nResult: `http://localhost:8000/storage/properties/abc.jpg`",
+			"item": [
+				{
+					"name": "List Properties",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url":
+						{
+							"raw": "{{baseUrl}}/api/v1/properties?per_page=10&sort_by=created_at_desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api","v1","properties"],
+							"query": [
+								{ "key": "per_page", "value": "10", "description": "Items per page" },
+								{ "key": "sort_by", "value": "created_at_desc", "description": "Sort order" }
+							]
+						},
+						"description": "**Browse the catalog.**\n\nUse query parameters to filter and sort through our premium listings."
+					}
+				},
+				{
+					"name": "Featured Properties",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/properties/featured?limit=6",
+							"host": ["{{baseUrl}}"],
+							"path": ["api","v1","properties","featured"],
+							"query": [{ "key": "limit", "value": "6" }]
+						},
+						"description": "**The crème de la crème.**\n\nGet a curated list of our top-tier properties, perfect for home pages."
+					}
+				},
+				{
+					"name": "Show Property",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/properties/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api","v1","properties","1"]
+						},
+						"description": "**The tour.**\n\nGet every single detail about a specific property."
+					}
+				},
+				{
+					"name": "Property Statistics",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/properties/statistics",
+							"host": ["{{baseUrl}}"],
+							"path": ["api","v1","properties","statistics"]
+						},
+						"description": "**Big Data.**\n\nAggregated stats about our property database."
+					}
+				}
+			]
+		},
+		{
+			"name": "✨ Amenities",
+			"description": "Explore the features that make our properties stand out.",
+			"item": [
+				{
+					"name": "List All Amenities",
+					"request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{baseUrl}}/api/v1/amenities", "host": ["{{baseUrl}}"], "path": ["api","v1","amenities"] } }
+				},
+				{
+					"name": "Popular Amenities",
+					"request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{baseUrl}}/api/v1/amenities/popular", "host": ["{{baseUrl}}"], "path": ["api","v1","amenities","popular"] } }
+				}
+			]
+		},
+		{
+			"name": "⚖️ Comparisons",
+			"description": "Helps users decide between their options by comparing properties side-by-side. Requires Authentication.",
+			"item": [
+				{
+					"name": "List Comparisons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/property-comparisons", "host": ["{{baseUrl}}"], "path": ["api","v1","property-comparisons"] },
+						"description": "**My Comparisons.**\n\nSee all the comparison lists you have created."
+					}
+				},
+				{
+					"name": "Create Comparison",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/property-comparisons", "host": ["{{baseUrl}}"], "path": ["api","v1","property-comparisons"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dream Home Candidates\",\n    \"property_ids\": [1, 2, 5]\n}"
+						},
+						"description": "**Start Comparing.**\n\nCreate a new bucket of properties to compare."
+					}
+				},
+				{
+					"name": "Add Property to Comparison",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/property-comparisons/1/add-property", "host": ["{{baseUrl}}"], "path": ["api","v1","property-comparisons","1","add-property"] },
+						"body": { "mode": "raw", "raw": "{\n    \"property_id\": 10\n}" },
+						"description": "**Expand the list.**\n\nAdd another contender to an existing comparison list."
+					}
+				}
+			]
+		},
+		{
+			"name": "📬 Communication",
+			"description": "Connects the world to us.",
+			"item": [
+				{
+					"name": "Contact Message",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/v1/contact-messages", "host": ["{{baseUrl}}"], "path": ["api","v1","contact-messages"] },
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"Visitor Name\",\n    \"email\": \"visitor@example.com\",\n    \"subject\": \"General Inquiry\",\n    \"message\": \"I love your website!\"\n}" },
+						"description": "**Say Hello.**\n\nGeneral contact form submission."
+					}
+				},
+				{
+					"name": "Schedule Viewing",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/v1/schedule-viewings", "host": ["{{baseUrl}}"], "path": ["api","v1","schedule-viewings"] },
+						"body": { "mode": "raw", "raw": "{\n    \"property_id\": 1,\n    \"full_name\": \"Serious Buyer\",\n    \"email\": \"buyer@example.com\",\n    \"phone_number\": \"+233200000000\",\n    \"preferred_date\": \"2025-12-25\",\n    \"preferred_time\": \"14:00\",\n    \"notes\": \"I'm available all afternoon.\"\n}" },
+						"description": "**Book a Visit.**\n\nRequest a physical viewing of a property."
+					}
+				}
+			]
+		},
+		{
+			"name": "📰 Newsletter",
+			"description": "Managing subscriptions and updates.",
+			"item": [
+				{
+					"name": "Subscribe",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/v1/newsletter/subscribe", "host": ["{{baseUrl}}"], "path": ["api","v1","newsletter","subscribe"] },
+						"body": { "mode": "raw", "raw": "{\n    \"email\": \"subscriber@example.com\",\n    \"first_name\": \"Reader\",\n    \"last_name\": \"One\",\n    \"preferences\": {\n        \"frequency\": \"weekly\"\n    }\n}" },
+						"description": "**Stay in the loop.**\n\nSubscribe to our mailing list."
+					}
+				}
+			]
+		},
+		{
+			"name": "🛡️ Admin",
+			"description": "Restricted area for platform administrators.",
+			"item": [
+				{
+					"name": "List Newsletter Subscriptions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/v1/admin/newsletter/subscriptions", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","newsletter","subscriptions"] },
+						"description": "**View all subscribers.**\n\nREQUIRES ADMIN PRIVILEGES. Lists everyone who has signed up for the newsletter."
+					}
+				},
+				{
+					"name": "List Contact Messages",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/v1/contact-messages", "host": ["{{baseUrl}}"], "path": ["api","v1","contact-messages"] },
+						"description": "**View inbox.**\n\nSee all messages sent via the contact form."
+					}
+				}
+			]
+		}
+	]
+}

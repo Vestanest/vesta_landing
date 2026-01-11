@@ -534,7 +534,10 @@ MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=your-email@gmail.com
-MAIL_FROM_NAME="${APP_NAME}"
+MAIL_FROM_NAME="Vesta Nest"
+
+# Note: Make sure APP_NAME is also set to "Vesta Nest" to ensure consistent branding
+# APP_NAME="Vesta Nest"
 
 # File Upload
 FILESYSTEM_DISK=public
