@@ -2,24 +2,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { SearchService, SearchSuggestion, SearchHistoryItem, SavedSearch } from "../api/services/search.service";
 import { toApiError } from "../api/errors";
+import { AdvancedSearchFilters } from "../api/models";
 import { useAuth } from "./AuthContext";
 
-export interface AdvancedSearchFilters {
-  searchTerm: string;
-  propertyType: string;
-  priceRange: [number, number];
-  priceType: string;
-  location: string;
-  bedrooms: [number, number];
-  bathrooms: [number, number];
-  areaRange: [number, number];
-  amenities: string[];
-  propertyStatus: string;
-  featured: boolean | null;
-  minRating: number;
-  sortBy: string;
-  sortOrder: string;
-}
+export type { AdvancedSearchFilters };
+
+
 
 interface SearchContextType {
   // Current search state

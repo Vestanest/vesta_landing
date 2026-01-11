@@ -26,7 +26,7 @@ import { PropertiesService, PropertiesListParams } from "../../api/services/prop
 import { toApiError } from "../../api/errors";
 import { PropertyModel } from "../../api/models";
 import { mediaUrl } from "../../api/config";
-import { useSearch } from "../../contexts/SearchContext";
+import { useSearch, AdvancedSearchFilters } from "../../contexts/SearchContext";
 
 interface Property {
   id: number;
@@ -279,10 +279,11 @@ function PropertiesContent() {
     }
   };
 
-  // Handle search history selection
-  const handleSearchHistorySelect = (query: string, filters: Record<string, unknown>) => {
+  const handleSearchHistorySelect = (query: string, filters: Partial<AdvancedSearchFilters> | undefined) => {
     setSearchTerm(query);
-    updateFilters(filters);
+    if (filters) {
+      updateFilters(filters);
+    }
     setCurrentPage(1);
     fetchProperties();
   };

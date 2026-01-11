@@ -161,3 +161,20 @@ export interface FeaturedPropertiesResponse {
 }
 
 
+
+export interface AdvancedSearchFilters {
+  searchTerm: string;
+  propertyType: string;
+  priceRange: [number, number];
+  priceType: string;
+  location: string;
+  bedrooms: [number, number];
+  bathrooms: [number, number];
+  areaRange: [number, number];
+  amenities: string[];
+  propertyStatus: string;
+  featured: boolean | null;
+  minRating: number;
+  sortBy: string;
+  sortOrder: string;
+}

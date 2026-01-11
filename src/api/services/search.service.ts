@@ -1,3 +1,5 @@
+import { AdvancedSearchFilters } from "../models";
+
 export interface SearchSuggestion {
   id: string;
   type: "location" | "property" | "amenity" | "keyword";
@@ -9,7 +11,7 @@ export interface SearchSuggestion {
 export interface SearchHistoryItem {
   id: string;
   query: string;
-  filters: Record<string, unknown>;
+  filters: Partial<AdvancedSearchFilters>;
   timestamp: string;
   result_count: number;
 }
@@ -18,7 +20,7 @@ export interface SavedSearch {
   id: number;
   name: string;
   query: string;
-  filters: Record<string, unknown>;
+  filters: Partial<AdvancedSearchFilters>;
   created_at: string;
   updated_at: string;
   is_active: boolean;
@@ -136,7 +138,7 @@ export const SearchService = {
   },
 
   // Save search to history (mock implementation until API is available)
-  saveSearchHistory: async (query: string, filters: Record<string, unknown>, resultCount: number) => {
+  saveSearchHistory: async (query: string, filters: Partial<AdvancedSearchFilters>, resultCount: number) => {
     // Mock implementation - save to localStorage for now
     try {
       const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
@@ -197,7 +199,7 @@ export const SearchService = {
   },
 
   // Save a search for alerts (mock implementation until API is available)
-  saveSearch: async (name: string, query: string, filters: Record<string, unknown>, notificationFrequency?: string) => {
+  saveSearch: async (name: string, query: string, filters: Partial<AdvancedSearchFilters>, notificationFrequency?: string) => {
     try {
       const savedSearches = JSON.parse(localStorage.getItem('savedSearches') || '[]');
       const newSearch: SavedSearch = {

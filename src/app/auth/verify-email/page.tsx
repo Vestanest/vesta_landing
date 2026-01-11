@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,8 @@ import Navigation from "../../../components/Navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 
-export default function VerifyEmailPage() {
+
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { verifyEmail, resendEmailOtp } = useAuth();
@@ -308,3 +309,12 @@ export default function VerifyEmailPage() {
     </div>
   );
 }
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
