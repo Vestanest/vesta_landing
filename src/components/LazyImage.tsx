@@ -88,42 +88,94 @@ export default function LazyImage({
   const defaultBlurDataURL = blurDataURL || (width && height ? generateBlurDataURL(width, height) : undefined);
 
   return (
-    <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
-      {/* Loading placeholder */}
-      {!isLoaded && !hasError && (
+    <div 
+      ref={imgRef} 
+      className={`relative overflow-hidden group/lazy ${className}`}
+      style={{ minHeight: fill ? '100%' : 'auto' }}
+    >
+      {/* Branded VestaNest Placeholder (Loading or Error) */}
+      {(!isLoaded || hasError) && (
         <motion.div
           initial={{ opacity: 1 }}
-          animate={{ opacity: isLoaded ? 0 : 1 }}
-          transition={{ duration: 0.3 }}
-          className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+          animate={{ opacity: isLoaded && !hasError ? 0 : 1 }}
+          transition={{ duration: 0.5 }}
+          className="absolute inset-0 bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center select-none z-[1]"
         >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full"
-          />
+          <div className="relative flex flex-col items-center justify-center">
+            {/* Background V logo decorative */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] dark:opacity-[0.05] text-[180px] font-bold text-neutral-900 dark:text-white pointer-events-none select-none">
+              V
+            </div>
+
+            <div className="relative flex flex-col items-center gap-1">
+              <span className="text-4xl font-extrabold tracking-tighter text-neutral-900 dark:text-neutral-100 opacity-90">
+                Vesta
+              </span>
+              
+              {/* The Creative Central Dot */}
+              <div className="relative flex items-center justify-center py-2">
+                <motion.div 
+                  animate={!isLoaded && !hasError ? { 
+                    scale: [1, 1.3, 1],
+                    opacity: [1, 0.6, 1],
+                    boxShadow: [
+                      "0 0 0px rgba(249, 115, 22, 0)",
+                      "0 0 20px rgba(249, 115, 22, 0.4)",
+                      "0 0 0px rgba(249, 115, 22, 0)"
+                    ]
+                  } : {}}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                  className={`w-4 h-4 rounded-full ${hasError ? 'bg-red-500' : 'bg-orange-500'} relative z-10`}
+                />
+                {!isLoaded && !hasError && (
+                  <motion.div 
+                    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+                    className="absolute w-4 h-4 rounded-full border-2 border-orange-400"
+                  />
+                )}
+              </div>
+
+              <span className="text-4xl font-extrabold tracking-tighter text-neutral-900 dark:text-neutral-100 opacity-90">
+                Nest
+              </span>
+
+              {/* The Dot Suffix */}
+              <div className="absolute -bottom-1 -right-4 text-4xl font-black text-orange-500">.</div>
+            </div>
+
+            {hasError && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 flex flex-col items-center gap-2"
+              >
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-red-500/90 whitespace-nowrap">
+                  Media Unavailable
+                </p>
+                <button 
+                  onClick={() => { setHasError(false); setIsInView(true); }}
+                  className="px-3 py-1 text-[9px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors"
+                >
+                  Retry Load
+                </button>
+              </motion.div>
+            )}
+          </div>
         </motion.div>
       )}
 
-      {/* Error placeholder */}
-      {hasError && (
-        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-          <div className="text-center text-gray-500 dark:text-gray-400">
-            <svg className="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-            <p className="text-sm">Failed to load image</p>
-          </div>
-        </div>
-      )}
-
       {/* Actual image */}
-      {isInView && !hasError && (
+      {isInView && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: isLoaded ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-          className="relative"
+          transition={{ duration: 0.5 }}
+          className={`${fill ? 'absolute inset-0 h-full w-full' : 'relative w-full h-full'}`}
         >
           <Image
             src={src}
@@ -131,8 +183,8 @@ export default function LazyImage({
             width={fill ? undefined : width}
             height={fill ? undefined : height}
             fill={fill}
-            className={`object-cover transition-transform duration-300 hover:scale-105 ${
-              isLoaded ? "opacity-100" : "opacity-0"
+            className={`object-cover transition-transform duration-700 hover:scale-110 ${
+              isLoaded ? "opacity-100" : "opacity-0 invisible"
             }`}
             priority={priority}
             placeholder={placeholder}
