@@ -28,6 +28,21 @@ const nextConfig: NextConfig = {
         port: '8000',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'app.vestanest.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vestanest.net',
+        pathname: '/**',
+      },
     ],
   },
   

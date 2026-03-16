@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import LazyImage from "../../components/LazyImage";
 import { useSearchParams } from "next/navigation";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
@@ -688,7 +688,7 @@ function PropertiesContent() {
                   >
                     {/* Property Image */}
                     <div className="relative h-64 overflow-hidden">
-                      <Image
+                      <LazyImage
                         src={mediaUrl(property.image)}
                         alt={property.title}
                         fill

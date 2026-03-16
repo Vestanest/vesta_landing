@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import LazyImage from "./LazyImage";
+import { mediaUrl } from "../api/config";
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface ImageGalleryProps {
@@ -50,12 +52,14 @@ export default function ImageGallery({ images, title, className = "" }: ImageGal
       <div className={className}>
         {/* Main Image */}
         <div className="relative h-96 lg:h-[500px] mb-4">
-          <img
-            src={images[selectedImage]}
-            alt={`${title} - Image ${selectedImage + 1}`}
-            className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
-            onClick={() => openLightbox(selectedImage)}
-          />
+          <div className="w-full h-full cursor-pointer hover:opacity-95 transition-opacity" onClick={() => openLightbox(selectedImage)}>
+            <LazyImage
+              src={mediaUrl(images[selectedImage])}
+              alt={`${title} - Image ${selectedImage + 1}`}
+              fill
+              className="rounded-lg"
+            />
+          </div>
           
           {/* Image Counter */}
           {images.length > 1 && (
@@ -96,10 +100,11 @@ export default function ImageGallery({ images, title, className = "" }: ImageGal
                     : "border-transparent hover:border-orange-300"
                 }`}
               >
-                <img
-                  src={image}
+                <LazyImage
+                  src={mediaUrl(image)}
                   alt={`${title} - Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="rounded-lg"
                 />
               </button>
             ))}
@@ -135,11 +140,14 @@ export default function ImageGallery({ images, title, className = "" }: ImageGal
               </button>
 
               {/* Main Image */}
-              <img
-                src={images[selectedImage]}
-                alt={`${title} - Image ${selectedImage + 1}`}
-                className="max-w-full max-h-[90vh] object-contain rounded-lg"
-              />
+              <div className="relative w-full h-[80vh] md:h-[90vh]">
+                <LazyImage
+                  src={mediaUrl(images[selectedImage])}
+                  alt={`${title} - Image ${selectedImage + 1}`}
+                  fill
+                  className="object-contain rounded-lg"
+                />
+              </div>
 
               {/* Navigation */}
               {images.length > 1 && (

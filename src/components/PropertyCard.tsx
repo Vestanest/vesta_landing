@@ -11,6 +11,7 @@ import {
   ShieldCheckIcon,
 } from "@heroicons/react/24/solid";
 import { mediaUrl } from "../api/config";
+import LazyImage from "./LazyImage";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -95,9 +96,10 @@ export default function PropertyCard({
         <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-orange-100/50 dark:border-gray-700/50 overflow-hidden shadow-gray-800/20 hover:shadow-gray-800/30 transition-all duration-300">
           {/* Enhanced Image Container */}
           <div className="relative h-56 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 overflow-hidden group">
-            <motion.img
+            <LazyImage
               src={mediaUrl(property.image)}
               alt={property.title}
+              fill
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>

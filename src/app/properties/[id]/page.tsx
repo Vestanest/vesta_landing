@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import LazyImage from "@/components/LazyImage";
 import { motion } from "framer-motion";
 import { PropertiesService } from "@/api/services/properties.service";
 import { PropertyModel } from "@/api/models";
@@ -157,12 +157,12 @@ export default function PropertyDetailPage() {
             animate={{ opacity: 1, y: 0 }}
             className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 bg-gray-200 dark:bg-gray-800 h-[400px] md:h-[500px] lg:h-[600px]"
             >
-            <Image
+            <LazyImage
                 src={mediaUrl(activeImage || property.image)}
                 alt={property.title}
                 fill
-                className="object-cover"
                 priority
+                className="object-cover"
             />
              <div className="absolute top-4 left-4 flex gap-2">
                 {property.is_featured && (
@@ -182,11 +182,11 @@ export default function PropertyDetailPage() {
                     activeImage === img ? "border-primary-500 ring-2 ring-primary-500/20 shadow-md" : "border-transparent hover:border-gray-300 dark:hover:border-gray-600 opacity-70 hover:opacity-100"
                     }`}
                 >
-                    <Image
-                    src={mediaUrl(img)}
-                    alt={`View ${idx + 1}`}
-                    fill
-                    className="object-cover"
+                    <LazyImage
+                      src={mediaUrl(img)}
+                      alt={`View ${idx + 1}`}
+                      fill
+                      className="object-cover"
                     />
                 </button>
                 ))}
