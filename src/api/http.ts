@@ -11,7 +11,8 @@ export interface HttpRequestOptions<TBody = unknown> {
 }
 
 function buildUrl(path: string, query?: HttpRequestOptions["query"]): string {
-  const url = new URL(path.startsWith("http") ? path : `${API_BASE_URL}${path}`);
+  const base = typeof window !== "undefined" ? window.location.origin : undefined;
+  const url = new URL(path.startsWith("http") ? path : `${API_BASE_URL}${path}`, base);
   if (query) {
     Object.entries(query).forEach(([k, v]) => {
       if (v !== undefined && v !== null) url.searchParams.set(k, String(v));

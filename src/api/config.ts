@@ -1,11 +1,21 @@
-const RAW_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000").trim();
+const isServer = typeof window === "undefined";
+
+// Use API_BASE_URL on server (private), or relative path in browser (proxy)
+const RAW_BASE_URL = isServer
+  ? (process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000").trim()
+  : ""; 
+
 const NORMALIZED_BASE = RAW_BASE_URL.replace(/\/+$/, "");
 
-export const APP_BASE_URL: string = NORMALIZED_BASE.endsWith("/api/v1")
-  ? NORMALIZED_BASE.replace(/\/api\/v1$/, "")
-  : NORMALIZED_BASE;
+export const APP_BASE_URL: string = isServer
+  ? (NORMALIZED_BASE.endsWith("/api/v1")
+    ? NORMALIZED_BASE.replace(/\/api\/v1$/, "")
+    : NORMALIZED_BASE)
+  : "";
 
-export const API_BASE_URL: string = `${APP_BASE_URL}/api/v1`;
+export const API_BASE_URL: string = isServer
+  ? `${APP_BASE_URL}/api/v1`
+  : "/api/v1";
 
 
 
