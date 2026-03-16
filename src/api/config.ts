@@ -7,13 +7,13 @@ const RAW_BASE_URL = isServer
 
 const NORMALIZED_BASE = RAW_BASE_URL.replace(/\/+$/, "");
 
-export const APP_BASE_URL: string = isServer
+export const APP_BASE_URL: string = typeof window === "undefined"
   ? (NORMALIZED_BASE.endsWith("/api/v1")
     ? NORMALIZED_BASE.replace(/\/api\/v1$/, "")
     : NORMALIZED_BASE)
   : "";
 
-export const API_BASE_URL: string = isServer
+export const API_BASE_URL: string = typeof window === "undefined"
   ? `${APP_BASE_URL}/api/v1`
   : "/api/v1";
 
