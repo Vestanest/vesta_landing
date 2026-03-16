@@ -337,14 +337,14 @@ export default function SignupPage() {
                   >
                     I agree to the{" "}
                     <Link
-                      href="/terms"
+                      href="/support/terms-of-service"
                       className="text-orange-600 hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-300"
                     >
                       Terms of Service
                     </Link>{" "}
                     and{" "}
                     <Link
-                      href="/privacy"
+                      href="/support/privacy-policy"
                       className="text-orange-600 hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-300"
                     >
                       Privacy Policy

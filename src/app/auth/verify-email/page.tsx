@@ -65,10 +65,10 @@ function VerifyEmailContent() {
         setIsVerified(true);
         showSuccess("Email verified!", "Your email has been successfully verified.");
         localStorage.removeItem("pendingVerificationEmail");
-        // Redirect to login after 3 seconds
+        // Redirect to dashboard after 2 seconds
         setTimeout(() => {
-          router.push("/auth/login?verified=true");
-        }, 3000);
+          router.push("/dashboard");
+        }, 2000);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Verification failed. Please try again.";
@@ -133,10 +133,10 @@ function VerifyEmailContent() {
                 Email Verified!
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-8">
-                Your email has been successfully verified. You can now sign in to your account.
+                Your email has been successfully verified. You now have full access to your account.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Redirecting to login page...
+                Redirecting to your dashboard...
               </p>
             </div>
           </motion.div>
