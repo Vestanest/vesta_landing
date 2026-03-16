@@ -85,6 +85,21 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // Rewrites to proxy API calls and avoid public env vars
+  async rewrites() {
+    const apiUrl = process.env.API_BASE_URL || 'http://127.0.0.1:8000';
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${apiUrl}/api/v1/:path*`,
+      },
+      {
+        source: '/storage/:path*',
+        destination: `${apiUrl}/storage/:path*`,
+      },
+    ];
+  },
   
   // Bundle analyzer (only in development)
   ...(process.env.ANALYZE === 'true' && {
