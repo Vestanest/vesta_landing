@@ -13,6 +13,7 @@ import {
 import Navigation from "../../../components/Navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { API_BASE_URL } from "../../../api/config";
 
 
 function ResetPasswordContent() {
@@ -63,7 +64,7 @@ function ResetPasswordContent() {
       setError(null);
       
       // Call the reset password API with OTP
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/reset-password`, {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
