@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import LazyImage from "./LazyImage";
 import Link from "next/link";
 import {
   HomeIcon,
@@ -299,9 +300,11 @@ export default function Hero() {
             >
               {/* Enhanced Image Container with Hover Effects */}
               <div className="relative h-80 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 rounded-xl overflow-hidden mb-4 group">
-                <motion.img
+                <LazyImage
                   src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=600&q=80"
                   alt="Dream Home"
+                  fill
+                  priority
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>

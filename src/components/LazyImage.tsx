@@ -99,67 +99,70 @@ export default function LazyImage({
           initial={{ opacity: 1 }}
           animate={{ opacity: isLoaded && !hasError ? 0 : 1 }}
           transition={{ duration: 0.5 }}
-          className="absolute inset-0 bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center select-none z-[1]"
+          className="absolute inset-0 bg-white dark:bg-gray-950 flex items-center justify-center select-none z-[10]"
         >
-          <div className="relative flex flex-col items-center justify-center">
-            {/* Background V logo decorative */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] dark:opacity-[0.05] text-[180px] font-bold text-neutral-900 dark:text-white pointer-events-none select-none">
+          <div className="relative flex flex-col items-center justify-center w-full h-full">
+            {/* Background V logo decorative - using explicit z and opacity */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.05] dark:opacity-[0.1] text-[150px] md:text-[200px] font-black text-gray-400 dark:text-gray-600 pointer-events-none select-none z-0">
               V
             </div>
 
-            <div className="relative flex flex-col items-center gap-1">
-              <span className="text-4xl font-extrabold tracking-tighter text-neutral-900 dark:text-neutral-100 opacity-90">
+            <div className="relative z-10 flex flex-col items-center">
+              <span className="text-4xl md:text-5xl font-black tracking-tighter text-gray-900 dark:text-white leading-none">
                 Vesta
               </span>
               
               {/* The Creative Central Dot */}
-              <div className="relative flex items-center justify-center py-2">
+              <div className="relative flex items-center justify-center my-1 h-12">
                 <motion.div 
                   animate={!isLoaded && !hasError ? { 
-                    scale: [1, 1.3, 1],
-                    opacity: [1, 0.6, 1],
+                    scale: [1, 1.4, 1],
+                    opacity: [1, 0.7, 1],
                     boxShadow: [
                       "0 0 0px rgba(249, 115, 22, 0)",
-                      "0 0 20px rgba(249, 115, 22, 0.4)",
+                      "0 0 25px rgba(249, 115, 22, 0.5)",
                       "0 0 0px rgba(249, 115, 22, 0)"
                     ]
                   } : {}}
                   transition={{ 
-                    duration: 1.5, 
+                    duration: 1.2, 
                     repeat: Infinity, 
                     ease: "easeInOut" 
                   }}
-                  className={`w-4 h-4 rounded-full ${hasError ? 'bg-red-500' : 'bg-orange-500'} relative z-10`}
+                  className={`w-5 h-5 rounded-full ${hasError ? 'bg-red-500 shadow-red-500/50' : 'bg-orange-500 shadow-orange-500/50'} relative z-20 shadow-lg`}
                 />
                 {!isLoaded && !hasError && (
                   <motion.div 
-                    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-4 h-4 rounded-full border-2 border-orange-400"
+                    animate={{ scale: [1, 3], opacity: [0.5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+                    className="absolute w-5 h-5 rounded-full border-2 border-orange-400 z-10"
                   />
                 )}
               </div>
 
-              <span className="text-4xl font-extrabold tracking-tighter text-neutral-900 dark:text-neutral-100 opacity-90">
-                Nest
-              </span>
-
-              {/* The Dot Suffix */}
-              <div className="absolute -bottom-1 -right-4 text-4xl font-black text-orange-500">.</div>
+              <div className="relative">
+                <span className="text-4xl md:text-5xl font-black tracking-tighter text-gray-900 dark:text-white leading-none">
+                  Nest
+                </span>
+                {/* The Bold Dot Suffix */}
+                <span className="absolute -right-5 bottom-0 text-5xl font-black text-orange-500 leading-none">.</span>
+              </div>
             </div>
 
             {hasError && (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 flex flex-col items-center gap-2"
+                className="absolute bottom-8 flex flex-col items-center gap-3 z-20"
               >
-                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-red-500/90 whitespace-nowrap">
-                  Media Unavailable
-                </p>
+                <div className="px-4 py-1.5 bg-red-500/10 border border-red-500/20 rounded-full backdrop-blur-sm">
+                  <p className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-black text-red-500 whitespace-nowrap">
+                    Media Unavailable
+                  </p>
+                </div>
                 <button 
                   onClick={() => { setHasError(false); setIsInView(true); }}
-                  className="px-3 py-1 text-[9px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors"
+                  className="px-5 py-2 text-[10px] uppercase tracking-widest bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all font-bold border border-gray-200 dark:border-gray-700 shadow-sm"
                 >
                   Retry Load
                 </button>
@@ -170,29 +173,30 @@ export default function LazyImage({
       )}
 
       {/* Actual image */}
-      {isInView && (
+      {isInView && src && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: isLoaded ? 1 : 0 }}
-          transition={{ duration: 0.5 }}
-          className={`${fill ? 'absolute inset-0 h-full w-full' : 'relative w-full h-full'}`}
+          transition={{ duration: 0.6 }}
+          className={`${fill ? 'absolute inset-0 h-full w-full' : 'relative w-full h-full'} z-0`}
         >
           <Image
             src={src}
-            alt={alt}
-            width={fill ? undefined : width}
-            height={fill ? undefined : height}
+            alt={alt || "Property image"}
+            width={fill ? undefined : (width || 800)}
+            height={fill ? undefined : (height || 600)}
             fill={fill}
-            className={`object-cover transition-transform duration-700 hover:scale-110 ${
-              isLoaded ? "opacity-100" : "opacity-0 invisible"
+            className={`object-cover transition-transform duration-1000 ${
+              isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-110 invisible"
             }`}
             priority={priority}
-            placeholder={placeholder}
-            blurDataURL={defaultBlurDataURL}
-            sizes={sizes}
+            placeholder={placeholder === 'blur' ? 'blur' : 'empty'}
+            blurDataURL={placeholder === 'blur' ? (blurDataURL || defaultBlurDataURL) : undefined}
+            sizes={sizes || (fill ? "100vw" : undefined)}
             quality={quality}
             onLoad={handleLoad}
             onError={handleError}
+            loading={priority ? undefined : 'lazy'}
           />
         </motion.div>
       )}
